@@ -55,7 +55,7 @@ module.exports = {
         target: 'http://localhost:3000',
         router: () => 'http://localhost:8050',
         logLevel: 'debug' /*optional*/
-   }
+      }
     }
   },
   module: {
