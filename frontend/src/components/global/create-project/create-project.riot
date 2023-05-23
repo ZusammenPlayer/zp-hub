@@ -1,0 +1,48 @@
+<create-project>
+    <h3>create new project</h3>
+
+    <form onsubmit={ add }>
+        <input onkeyup={ edit } value={ state.name } />
+        <button disabled={ !state.name }>
+            add
+        </button>
+    </form>
+
+    <script>
+        export default {
+            onBeforeMount(props, state) {
+                // initial state
+                this.state = {
+                    name: ''
+                }
+            },
+            edit(e) {
+                // update only the text state
+                this.update({
+                    name: e.target.value
+                })
+            },
+            async createProject() {
+                try {
+                    const data = {
+                        'name': this.state.name,
+                    }
+                    const res = await fetch(`/api/project`, {
+                        method: 'post',
+                        body: JSON.stringify(data)
+                    });
+                    const json = await res.json();
+                    console.log(JSON.stringify(json));
+                } catch (error) {
+                    console.log({ error });
+                }
+            },
+            add(e) {
+                e.preventDefault()
+                if (this.state.name) {
+                    this.createProject();
+                }
+            },
+        }
+    </script>
+</create-project>
