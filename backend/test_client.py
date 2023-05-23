@@ -34,7 +34,7 @@ async def set_sys(data):
         config.name = data['name']
 
 async def main():
-    await sio.connect('http://127.0.0.1:8050')
+    await sio.connect('http://127.0.0.1:8080')
     await sio.wait()
 
 if __name__ == '__main__':
