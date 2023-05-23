@@ -48,12 +48,12 @@ module.exports = {
     proxy: {
       '/api': {
            target: 'http://localhost:3000',
-           router: () => 'http://localhost:8050',
+           router: () => 'http://localhost:8080',
            logLevel: 'debug' /*optional*/
       },
       '/socket.io': {
         target: 'http://localhost:3000',
-        router: () => 'http://localhost:8050',
+        router: () => 'http://localhost:8080',
         logLevel: 'debug' /*optional*/
       }
     }

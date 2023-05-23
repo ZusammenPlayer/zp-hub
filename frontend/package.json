@@ -3,7 +3,8 @@
     "@riotjs/hot-reload": "^6.0.1",
     "@riotjs/lazy": "^2.0.2",
     "@riotjs/route": "^8.0.2",
-    "riot": "^7.0.3"
+    "riot": "^7.0.3",
+    "url": "^0.11.0"
   },
   "name": "zp-web",
   "version": "1.0.0",
