@@ -32,6 +32,17 @@ async def get_all_devices(request):
     data = json.dumps(connected_devices)
     return web.Response(text=data)
 
+async def get_all_projects(request):
+    global database
+    data = []
+    for project in database['projects']:
+        data.append({
+            'id': project['id'],
+            'name': project['name'],
+            'slug': project['slug'],
+        })
+    return web.json_response(data)
+
 async def create_new_project(request):
     print('create new project')
     global database
@@ -67,6 +78,7 @@ sio.attach(app)
 
 app.add_routes([
     web.get('/api', handle_api),
+    web.get('/api/project/all', get_all_projects),
     web.get('/api/device', get_all_devices),
     web.post('/api/device', create_new_project),
     web.static('/', 'web-client', show_index=True, follow_symlinks=True),
