@@ -40,7 +40,6 @@
     import Loader from './components/includes/loader/loader.riot'
     import NotFound from './pages/not-found.riot'
     import pages from './pages'
-    import './style.css'
 
     export default {
       components: {
@@ -55,6 +54,10 @@
           /* webpackPrefetch: true, webpackChunkName: 'pages/about' */
           './pages/about.riot'
         )),
+        Project: lazy(Loader, () => import(
+          /* webpackPrefetch: true, webpackChunkName: 'pages/project' */
+          './pages/project.riot'
+        )),
       },
       state: {
         pages,
@@ -62,14 +65,24 @@
         activePage: null
       },
       onBeforeMount({ isServer }) {
+        this.projectRouteStream = route('(/project/.*)')
+        this.projectRouteStream.on.value(this.onProjectRoute)
         // create a stream on all routes to catch the not-found page
-        this.anyRouteStream = route('(.*)')
+        this.anyRouteStream = route('(^(?!/project/).*)')
         this.anyRouteStream.on.value(this.onAnyRoute)
       },
-      onAnyRoute(path) {
+      onProjectRoute(path) {
+        // show the project page
+        const activePage = pages.find(p => match('/project', toRegexp(p.path)))
+        console.log(path.pathname)
+        this.update({
+          activePage,
+          showNotFound: !activePage
+        })
+      },onAnyRoute(path) {
         // show the not found page if none of the page paths are matched
         const activePage = pages.find(p => match(path.pathname, toRegexp(p.path)))
-
+        console.log("oar" + path.pathname)
         this.update({
           activePage,
           showNotFound: !activePage
@@ -77,6 +90,7 @@
       },
       onBeforeUnmount() {
         this.anyRouteStream.end()
+        this.projectRouteStream.end()
       }
     }
   </script>

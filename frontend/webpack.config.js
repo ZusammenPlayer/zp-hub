@@ -8,6 +8,7 @@ module.exports = {
     app: './src/index.js',
   },
   output: {
+    publicPath: "/", /// ahhh ;)
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].bundle.js',
     clean: true
@@ -46,6 +47,7 @@ module.exports = {
     hot: true,
     open: true,
     historyApiFallback: true,
+    
     proxy: {
       '/api': {
            target: 'http://localhost:3000',
@@ -75,12 +77,21 @@ module.exports = {
         test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
     ]
   },
   plugins: [
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: 'src/index.html',
+      favicon: 'src/favicon.ico'
     }),
     new webpack.HotModuleReplacementPlugin(),
   ]

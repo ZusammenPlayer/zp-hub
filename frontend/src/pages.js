@@ -6,4 +6,8 @@ export default [{
   path: '/about',
   label: 'About',
   componentName: 'about'
+}, {
+  path: '/project',
+  label: 'Project',
+  componentName: 'project'
 }]
