@@ -17,10 +17,6 @@ database = {
 }
 current_project = []
 
-zp_state = {
-    'current_project': None
-}
-
 async def handle_api(request):
     global connected_devices
     print('request: ', request)    
@@ -42,6 +38,28 @@ async def get_all_projects(request):
             'slug': project['slug'],
         })
     return web.json_response(data)
+
+async def get_project(request):
+    global database
+    q = request.query
+    project = None
+    if 'id' in q:
+        for item in database['projects']:
+            if item['id'] == q['id']:
+                project = item
+    elif 'slug' in q:
+        for item in database['projects']:
+            if item['slug'] == q['slug']:
+                project = item
+
+    if project != None:
+        file_name = project['file_name']
+        with open(file_name, "r") as outfile:
+            response_data = json.load(outfile)
+            del response_data['file_name']
+            return web.json_response(response_data)
+    else:
+        return web.HTTPNotFound()
 
 async def create_new_project(request):
     global database
@@ -91,6 +109,7 @@ sio.attach(app)
 app.add_routes([
     web.get('/api', handle_api),
     web.get('/api/project/all', get_all_projects),
+    web.get('/api/project', get_project),
     web.post('/api/project', create_new_project),
     web.get('/api/device', get_all_devices),
     web.static('/', 'web-client', show_index=True, follow_symlinks=True),
