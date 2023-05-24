@@ -44,30 +44,42 @@ async def get_all_projects(request):
     return web.json_response(data)
 
 async def create_new_project(request):
-    print('create new project')
     global database
-    data = await request.json()
-    print('data: ', data)
-    print('type: ', type(data))
 
-    slug = slugify(data['name'])
-    id = 'project_' + ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-    file_name = config.zp_projects_path + '/' + id + '.json'
+    request_data = await request.json()
 
-    new_project = {
-        'id': id,
-        'name': data['name'],
-        'slug': slug,
-        'file_name': file_name,
-    }
+    # check wether a project with the specified name already exists
+    project_name_exists = False
+    for project in database['projects']:
+        if project['name'] == request_data['name']:
+            project_name_exists = True
 
-    out = json.dumps(new_project)
+    if project_name_exists:
+        error = {
+            'code': 1,
+            'message': 'project with given name already exists'
+        }
+        return web.HTTPBadRequest(text=json.dumps(error), content_type="application/json")
+    else:
+        slug = slugify(request_data['name'])
+        id = 'project_' + ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        file_name = config.zp_projects_path + '/' + id + '.json'
 
-    with open(file_name, "w") as outfile:
-        outfile.write(out)
-    database['projects'].append(new_project)
-    save_database()
-    return web.Response(text=out)
+        new_project = {
+            'id': id,
+            'name': request_data['name'],
+            'slug': slug,
+            'file_name': file_name,
+        }
+
+        out = json.dumps(new_project)
+
+        with open(file_name, "w") as outfile:
+            outfile.write(out)
+        database['projects'].append(new_project)
+        save_database()
+        del new_project['file_name']
+        return web.json_response(new_project)
 
 
 app = web.Application()
@@ -79,8 +91,8 @@ sio.attach(app)
 app.add_routes([
     web.get('/api', handle_api),
     web.get('/api/project/all', get_all_projects),
+    web.post('/api/project', create_new_project),
     web.get('/api/device', get_all_devices),
-    web.post('/api/device', create_new_project),
     web.static('/', 'web-client', show_index=True, follow_symlinks=True),
 ])
 
