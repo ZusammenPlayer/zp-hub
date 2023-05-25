@@ -1,7 +1,7 @@
 <app>
   <div class="container">
     <router>
-      <navigation ap={state.activePage}></navigation>
+      <navigation ap={state.activePage || {}}></navigation>
       <div class="main-content">
         <div if={state.showNotFound} class="row">
           <div class="column column-60">
