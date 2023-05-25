@@ -1,0 +1,27 @@
+<navigation>
+  <div class="row">
+    <nav class="navigation menu">
+        <section class="container">
+            <a class="navigation-title {props.ap === page ? 'active' : '' }" href="/">ZusammenPlayer</a> 
+            <a if={props.ap.path != '/'}> huhu</a>
+        <a
+            each={page in state.pages}
+            class="navigation-title {props.ap === page ? 'active' : '' }"
+            href={page.path}>
+            {page.label}
+        </a>
+        </section>
+    </nav>
+  </div>
+
+  <script>
+    import pages from '../../../pages.js'
+
+    export default {
+        state: {
+            pages,
+            //activePage: null
+        },
+    }
+  </script>
+</navigation>
