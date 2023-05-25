@@ -2,10 +2,6 @@ import socketio
 from aiohttp import web
 import json
 import config
-import os
-from slugify import slugify
-import random
-import string
 from zp_database import ZP_Database as Database, DatabaseException
 
 ROOM_DEVICES = 'room_devices'
@@ -13,6 +9,11 @@ ROOM_WEB = 'room_web_clients'
 
 connected_devices = []
 database = Database(config.zp_data_path)
+
+async def index_handler(request):
+    with open('web-client/index.html') as f:
+        html = f.read()
+        return web.Response(text=html, content_type='text/html')
 
 # api endpoints
 
@@ -53,6 +54,7 @@ app.add_routes([
     web.get('/api/project', get_project),
     web.post('/api/project', create_new_project),
     web.get('/api/device', get_all_devices),
+    web.get('/', index_handler),
     web.static('/', 'web-client', show_index=True, follow_symlinks=True),
 ])
 
