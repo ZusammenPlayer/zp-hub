@@ -162,6 +162,14 @@ class ZP_Database:
         self.__DB['projects'] = [p for p in self.__DB['projects'] if p['id'] == id]
         self.__save_database()
     
+    def save_project(self, project):
+        id = project['id']
+        file_name = self.__projects_dir + '/' + id + '.json'
+        out = json.dumps(project)
+        with open(file_name, "w") as f:
+                f.write(out)
+        return project
+    
     def __save_database(self):
         with open(self.__db_file_path, "w") as outfile:
             outfile.write(json.dumps(self.__DB))

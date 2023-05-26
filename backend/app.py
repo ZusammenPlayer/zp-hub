@@ -37,7 +37,7 @@ async def get_project(request):
     else:
         return web.HTTPNotFound()
 
-async def create_new_project(request):
+async def create_project(request):
     request_data = await request.json()
     try:
         new_project = database.create_new_project(request_data)
@@ -45,9 +45,22 @@ async def create_new_project(request):
     except DatabaseException as ex:
         return web.HTTPBadRequest(text=ex.to_json(), content_type="application/json")
 
+async def update_project(request):
+    id = request.match_info['project_id']
+    request_data = await request.json()
+    project = database.get_project(id)
+    if project is None:
+        return web.HTTPNotFound()
+    else:
+        if 'scenes' in request_data:
+            project['scenes'] = request_data['scenes']
+        if 'cuelists' in request_data:
+            project['cuelists'] = request_data['cuelists']
+        database.save_project(project)
+        return web.json_response(project)
+
 async def debug_play(request):
     request_data = await request.json()
-    eventName = request_data['eventName']
     payload = request_data['payload']
     try:
         payload = json.loads(payload)
@@ -66,7 +79,8 @@ sio.attach(app)
 app.add_routes([
     web.get('/api/project/all', get_all_projects),
     web.get('/api/project', get_project),
-    web.post('/api/project', create_new_project),
+    web.post('/api/project', create_project),
+    web.put('/api/project/{project_id}', update_project),
     web.get('/api/device', get_all_devices),
     web.get('/', index_handler),
     web.post('/api/debug/play', debug_play),
