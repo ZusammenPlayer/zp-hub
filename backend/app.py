@@ -46,9 +46,16 @@ async def create_new_project(request):
         return web.HTTPBadRequest(text=ex.to_json(), content_type="application/json")
 
 async def debug_play(request):
-    await sio.emit('color', {'c':'ff9900', 'R': 'a'})#, room=ROOM_DEVICES)
-    data = {}
-    return web.json_response(data)
+    request_data = await request.json()
+    eventName = request_data['eventName']
+    payload = request_data['payload']
+    try:
+        payload = json.loads(payload)
+    except:
+        print("cannot parse json")
+        pass
+    await sio.emit(request_data['eventName'], payload, room=ROOM_DEVICES)
+    return web.json_response({})
 
 
 # create web application 
@@ -67,9 +74,6 @@ app.add_routes([
 ])
 
 # socket io event handling
-@sio.on('connect')
-async def connect(sid, _):
-    print('new client connected: ', sid)
 
 @sio.on('disconnect')
 async def disconnect(sid):

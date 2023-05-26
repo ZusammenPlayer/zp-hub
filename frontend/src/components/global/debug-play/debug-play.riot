@@ -1,31 +1,65 @@
 <debug-play>
 
     <style>
+        .debug-container {
+            background-color: #eee;
+            padding: 10px;
+        }
         .success {
-            color: #66ff66;
+            color: #33dd33;
         }
         .error {
             color: #ff0000;
         }
     </style>
 
-    <div style="height: 20px"> </div>
-    <div>
-        <button onclick={button_clicked}>play</button>
+    <div class="debug-container">
+        <h3>Dispatch payloads to connected clients</h3>
+        <form>
+            <fieldset>
+                <label for="eventNameField">event name</label>
+                <input onkeyup={ editEventName } value={ state.eventName } type="text" placeholder="event name" id="eventNameField">
+                <label for="payloadField">payload</label>
+                <textarea onkeyup={ editPayload } value={ state.payload } placeholder="payload" id="payloadField"></textarea>
+                <button width="100%" onclick={button_clicked}>play</button>
+                <div class="float-right">
+                    <label if={ state.show_info } class="success">event sent</label>
+                    <label if={ state.debug_error } class="error">{ state.debug_error }</label>
+                </div>
+            </fieldset>
+        </form>
     </div>
-    <p if={ state.show_info } class="success">event sent</p>
-    <p if={ state.debug_error } class="error">{ state.debug_error }</p>
 
     <script>
         export default {
             state: {
+                eventName: 'color',
+                payload: '{"c":"2f9950", "R": "a"}',
                 show_info: false,
                 debug_error: null
             },
-            async button_clicked() {
-                const data = {}
+            editEventName(e) {
+                this.update({
+                    eventName: e.target.value
+                })
+            },
+            editPayload(e) {
+                this.update({
+                    payload: e.target.value
+                })
+            },
+            async button_clicked(e) {
+                e.preventDefault();
+                const data = {
+                    eventName: this.state.eventName,
+                    payload: this.state.payload
+                }
                 const res = await fetch(`/api/debug/play`, {
                     method: 'post',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(data)
                 });
                 if (res.status === 200) {
