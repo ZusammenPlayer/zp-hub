@@ -1,0 +1,45 @@
+<project-list>
+
+    <style>
+        .error {
+            color: #ff0000;
+        }
+        .project-list-item {
+            padding: 5px;
+        }
+    </style>
+    
+    <h1>projects</h1>
+
+    <p if={ state.load_error } class="error">{ state.load_error }</p>
+
+    <div>
+        <div each={ project in state.projects } class="project-list-item">
+            <a href='project/{ project.slug }'>{ project.name }</a>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            state: {
+                projects: [],
+                load_error: null
+            },
+            async getProjects() {
+                const res = await fetch(`/api/project/all`);
+                if (res.status === 200) {
+                    const data = await res.json();
+                    this.update({ projects: data });
+                } else if (res.status === 400) {
+                    const error = await res.json();
+                    this.update({ projects: [], load_error: error.message });
+                } else {
+                    this.update({ load_error: 'Error loading projects! status code: ' + res.status});
+                }
+            },
+            async onBeforeMount(props, state) {
+                await this.getProjects();
+            },
+        }
+    </script>
+</project-list>
