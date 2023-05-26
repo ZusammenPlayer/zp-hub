@@ -11,7 +11,9 @@ config = {
 
 @sio.event
 async def connect():
+    global config
     print('connection established')
+    await sio.emit('register', config)
 
 @sio.event
 async def my_message(data):
@@ -23,9 +25,8 @@ async def disconnect():
     print('disconnected from server')
 
 @sio.event
-async def get_sys(data):
-    global config
-    return config
+async def s(data):
+    print('play command received from server')
 
 @sio.event
 async def set_sys(data):

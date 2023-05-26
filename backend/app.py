@@ -45,41 +45,33 @@ async def create_new_project(request):
     except DatabaseException as ex:
         return web.HTTPBadRequest(text=ex.to_json(), content_type="application/json")
 
+async def debug_play(request):
+    await sio.emit('color', {'c':'ff9900', 'R': 'a'})#, room=ROOM_DEVICES)
+    data = {}
+    return web.json_response(data)
+
+
 # create web application 
+sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
 app = web.Application()
-sio = socketio.AsyncServer(cors_allowed_origin="*", async_mode='aiohttp')
 sio.attach(app)
+
 app.add_routes([
     web.get('/api/project/all', get_all_projects),
     web.get('/api/project', get_project),
     web.post('/api/project', create_new_project),
     web.get('/api/device', get_all_devices),
     web.get('/', index_handler),
+    web.post('/api/debug/play', debug_play),
     web.static('/', 'web-client', show_index=True, follow_symlinks=True),
 ])
 
 # socket io event handling
-@sio.event
-async def connect(sid, data):
-    global connected_devices
-    new_device = {
-        'sid': sid
-    }
-    async def cb(data):
-        # check and put all devices in one room
-        if data['type'] == 'player':
-            new_device['name'] = data['name']
-            new_device['type'] = data['type']
-            connected_devices.append(new_device)
-            sio.enter_room(sid, ROOM_DEVICES)
-            print('device connected: ', sid)
-        if data['type'] == 'web':
-            sio.enter_room(sid, ROOM_WEB)
-            print('web ui connected: ', sid)
-        await sio.emit('device-list', json.dumps(connected_devices), room=ROOM_WEB)
-    await sio.emit('get_sys', {}, room=sid, callback=cb)
+@sio.on('connect')
+async def connect(sid, _):
+    print('new client connected: ', sid)
 
-@sio.event
+@sio.on('disconnect')
 async def disconnect(sid):
     global connected_devices
     # remove device from connected devices
@@ -91,6 +83,23 @@ async def disconnect(sid):
         del connected_devices[index]
     print(sid, ' disconnected')
     await sio.emit('device-list', json.dumps(connected_devices), room=ROOM_WEB)
+
+@sio.on('register')
+async def register(sid, data):
+    global connected_devices    
+    # check and put all devices in one room
+    if data['type'] == 'player':
+        new_device = {
+            'sid': sid
+        }
+        new_device['name'] = data['name']
+        new_device['type'] = data['type']
+        connected_devices.append(new_device)
+        sio.enter_room(sid, ROOM_DEVICES)
+        print('device connected: ', sid)
+    if data['type'] == 'web':
+        sio.enter_room(sid, ROOM_WEB)
+        print('web ui connected: ', sid)
 
 
 def init():
