@@ -1,0 +1,42 @@
+<debug-play>
+
+    <style>
+        .success {
+            color: #66ff66;
+        }
+        .error {
+            color: #ff0000;
+        }
+    </style>
+
+    <div style="height: 20px"> </div>
+    <div>
+        <button onclick={button_clicked}>play</button>
+    </div>
+    <p if={ state.show_info } class="success">event sent</p>
+    <p if={ state.debug_error } class="error">{ state.debug_error }</p>
+
+    <script>
+        export default {
+            state: {
+                show_info: false,
+                debug_error: null
+            },
+            async button_clicked() {
+                const data = {}
+                const res = await fetch(`/api/debug/play`, {
+                    method: 'post',
+                    body: JSON.stringify(data)
+                });
+                if (res.status === 200) {
+                    this.update({ show_info: true, debug_error: null });
+                    setTimeout(() => {
+                        this.update({ show_info: false });
+                    }, 3000);
+                } else {
+                    this.update({ show_info: false, debug_error: 'error sending command. status code: ' + res.status});
+                }
+            }
+        }
+    </script>
+</debug-play>
