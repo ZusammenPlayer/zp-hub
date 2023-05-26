@@ -17,6 +17,10 @@
   <script>
     import pages from '../../../pages.js'
 
+    eventBus.on('pathname', function(input) {      
+        console.log(input);
+    });
+
     export default {
         state: {
             pages,
