@@ -59,6 +59,10 @@ async def update_project(request):
         database.save_project(project)
         return web.json_response(project)
 
+async def command(request):
+    print('command endpoint')
+    pass
+
 async def debug_play(request):
     request_data = await request.json()
     payload = request_data['payload']
@@ -82,6 +86,7 @@ app.add_routes([
     web.post('/api/project', create_project),
     web.put('/api/project/{project_id}', update_project),
     web.get('/api/device', get_all_devices),
+    web.get('/api/command', command),
     web.get('/', index_handler),
     web.post('/api/debug/play', debug_play),
     web.static('/', 'web-client', show_index=True, follow_symlinks=True),
