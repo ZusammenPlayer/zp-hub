@@ -1,7 +1,7 @@
 <app>
   <div class="container">
     <router>
-      <navigation ap={state.activePage || {}}></navigation>
+      <navigation ap={state.activePage}></navigation>
       <div class="main-content">
         <div if={state.showNotFound} class="row">
           <div class="column">
@@ -24,8 +24,12 @@
     import lazy from '@riotjs/lazy'
     import Loader from './components/includes/loader/loader.riot'
     import NotFound from './pages/not-found.riot'
+    import observable from '@riotjs/observable'
     import pages from './pages'
+    var riot = require('riot')
 
+    window.stateContainer = {}
+    const defaultActivePage = pages.find(p => match('/', toRegexp(p.path)))
     export default {
       components: {
         Router,
@@ -47,37 +51,51 @@
       state: {
         pages,
         showNotFound: false,
-        activePage: null
+        activePage: defaultActivePage
       },
       onBeforeMount({ isServer }) {
+        // stream for project routes
         this.projectRouteStream = route('(/project/.*)')
         this.projectRouteStream.on.value(this.onProjectRoute)
         // create a stream on all routes to catch the not-found page
         this.anyRouteStream = route('(^(?!/project/).*)')
         this.anyRouteStream.on.value(this.onAnyRoute)
+        
+        var EventBus = function(){
+            observable(this);
+        }
+        riot.eventBus = new EventBus();
+      },
+      onMounted(){
       },
       onProjectRoute(path) {
         // show the project page
         const activePage = pages.find(p => match('/project', toRegexp(p.path)))
-        console.log(path.pathname)
+        console.log(path.pathname + "jhjh")
         this.update({
           activePage,
           showNotFound: !activePage
         })
+        window.stateContainer.activePage = this.state.activePage
+        riot.eventBus.trigger('activePage', window.stateContainer.activePage)
       },onAnyRoute(path) {
         // show the not found page if none of the page paths are matched
         const activePage = pages.find(p => match(path.pathname, toRegexp(p.path)))
-        console.log("oar" + path.pathname)
+        console.log("oar " + path.pathname)
         this.update({
           activePage,
           showNotFound: !activePage
         })
+        window.stateContainer.activePage = this.state.activePage
+        riot.eventBus.trigger('activePage', window.stateContainer.activePage)
       },
       onBeforeUnmount() {
         this.anyRouteStream.end()
         this.projectRouteStream.end()
       }
+      
     }
+    
   </script>
 
   <style>

@@ -1,0 +1,65 @@
+<project-navigation>
+    <a class="navigation-title active" href="/">Zusammenplayer</a>
+    <a class="navigation-title {props.ap != null && props.ap === page ? 'active' : '' }" href="#">{ state.title }</a>
+        
+        <a
+            each={page in state.projectPages}
+            class="navigation-title {props.ap != null && props.ap === page ? 'active' : '' }"
+            href={page.path}>
+            {page.label}
+        </a>
+
+  <script>
+    import projectPages from '../../../project-pages.js'
+    import observable from '@riotjs/observable'
+    var riot = require('riot')
+    
+    export default {
+        state: {
+            title: 'Project',
+            projectPages,
+            activePage: null
+        },
+        // async getProject() {
+        //         const res = await fetch('/api/project/' + );
+        //         if (res.status === 200) {
+        //             const data = await res.json();
+        //             this.update({ projects: data });
+        //         } else if (res.status === 400) {
+        //             const error = await res.json();
+        //             this.update({ projects: [], load_error: error.message });
+        //         } else {
+        //             this.update({ load_error: 'Error loading projects! status code: ' + res.status});
+        //         }
+        //     },
+        //     async onBeforeMount(props, state) {
+        //         await this.getProjects();
+        //     },
+        onBeforeMount(){
+            //console.log('huhu') 
+            //this.newPage(window.stateContainer.activePage)
+            
+        },
+        onMounted() {
+            const activePageUpdate = (input) => {
+                const activePage = input
+                this.update({
+                    activePage
+                })
+                console.log('activePage: ' + this.state.activePage.componentName)
+            }
+            riot.eventBus.on('activePage', function(input) {     
+                console.log('huhu') 
+                activePageUpdate(input)
+            })
+            var title = location.pathname
+            this.update({
+                title: location.pathname
+            })
+            console.log(location.pathname)
+        }
+        
+        
+    }
+  </script>
+</project-navigation>
