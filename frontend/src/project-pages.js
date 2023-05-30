@@ -6,8 +6,9 @@ export default [{
     path: './scenes',
     label: 'Scenes',
     componentName: 'scenes'
-  }, {
-    path: './devices',
-    label: 'Devices',
-    componentName: 'devices'
+  },
+  {
+    path: '/project/:slug/mapping',
+    label: 'Mapping',
+    componentName: 'mapping'
   }]

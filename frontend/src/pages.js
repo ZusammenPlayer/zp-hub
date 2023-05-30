@@ -10,4 +10,9 @@ export default [{
   path: '/debug',
   label: 'Debugging',
   componentName: 'debug-page'
+},
+{
+  path: '/project/:slug',
+  label: 'Project',
+  componentName: 'project-details'
 }]
