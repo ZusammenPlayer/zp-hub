@@ -48,6 +48,9 @@
           /* webpackPrefetch: true, webpackChunkName: 'pages/project' */
           './pages/project.riot'
         )),
+        Debug: lazy(Loader, () => import(
+          './pages/debug-page.riot'
+        )),
       },
       state: {
         pages,

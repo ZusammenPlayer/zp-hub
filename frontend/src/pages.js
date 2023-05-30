@@ -3,11 +3,11 @@ export default [{
   label: 'ZusammenPlayer',
   componentName: 'home'
 }, {
-  path: '/about',
-  label: 'About',
-  componentName: 'about'
-}, {
   path: '/project',
   label: 'Project',
   componentName: 'project'
+}, {
+  path: '/debug',
+  label: 'Debugging',
+  componentName: 'debug-page'
 }]
