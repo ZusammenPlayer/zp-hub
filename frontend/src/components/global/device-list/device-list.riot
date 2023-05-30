@@ -9,6 +9,8 @@
     }
   </style>
 
+  <h2>connected devices</h2>
+
   <div each={ device in state.devices } class="row">
     <div class="zp-device">
       <p>{ device.name }</p>
@@ -17,22 +19,35 @@
   </div>
 
   <script>
+    const io = require('socket.io-client');
     export default {
       state: {
         devices: []
       },
-      async getConnectedDevices() {
-        try {
-          const res = await fetch(`/api/device`);
-          const data = await res.json();
-          this.update({ devices: data });
-          console.log({ devices: this.state.devices });
-        } catch (error) {
-          console.log({ error });
-        }
-      },
       async onBeforeMount(props, state) {
-        await this.getConnectedDevices();
+        console.log('init socket io');
+
+        const socket = io();
+        
+        socket.on("connect", () => {
+          console.log('connected: ' + socket.id);
+          const uid = 'web-client-' + Math.floor(Math.random()*90000) + 10000;
+          const device_data = {
+            'name': 'web ui',
+            'type': 'web',
+            'uid': uid
+          }
+          socket.emit('register', device_data);
+        });
+
+        socket.on("disconnect", () => {
+          console.log('disconnected: ' + socket.id);
+        });
+
+        socket.on('device-list', (data) => {
+          const json = JSON.parse(data);
+          this.update({devices: json});
+        })
       },
     }
   </script>

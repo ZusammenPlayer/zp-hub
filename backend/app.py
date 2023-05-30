@@ -119,6 +119,7 @@ async def register(sid, data):
     if data['type'] == 'web':
         sio.enter_room(sid, ROOM_WEB)
         print('web ui connected: ', sid)
+    await sio.emit('device-list', json.dumps(connected_devices), room=ROOM_WEB)
 
 
 def init():
