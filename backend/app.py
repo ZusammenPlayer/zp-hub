@@ -110,6 +110,7 @@ async def register(sid, data):
         new_device = {
             'sid': sid
         }
+        new_device['uid'] = data['uid']
         new_device['name'] = data['name']
         new_device['type'] = data['type']
         connected_devices.append(new_device)
