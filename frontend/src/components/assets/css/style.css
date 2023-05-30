@@ -63,3 +63,13 @@
   .navigation .navigation-link.active {
     color: #606c76
   }
+
+  #sidebar {
+    z-index: 1000;
+    position: fixed;
+    top: 5.2rem;
+    right: 0;
+    width: 14vw;
+    height: 100vh;
+    background-color: #9b4dca;
+  }
