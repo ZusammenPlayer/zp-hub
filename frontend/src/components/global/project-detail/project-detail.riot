@@ -1,39 +1,29 @@
 <project-detail>
-
-  <style>
-    .zp-device {
-      margin: 3px 0;
-      padding: 5px;
-      width: 100%;
-      background-color: #48f510;
-    }
-  </style>
-
-  <div each={ device in state.devices } class="row">
-    <div class="zp-device">
-      <p>{ device.name }</p>
-      <h6>{ device.type }</p>
+  <div class="main-content">
+    <div class="row">
+      <h1>Project Detail</h1>
+      <p>Here I describe who I am and what I do</p>
     </div>
   </div>
 
   <script>
     export default {
       state: {
-        devices: []
+        project: {}
       },
-      async getConnectedDevices() {
-        try {
-          const res = await fetch(`/api/device`);
-          const data = await res.json();
-          this.update({ devices: data });
-          console.log({ devices: this.state.devices });
-        } catch (error) {
-          console.log({ error });
-        }
-      },
-      async onBeforeMount(props, state) {
-        await this.getConnectedDevices();
-      },
+      // async getConnectedDevices() {
+      //   try {
+      //     const res = await fetch(`/api/device`);
+      //     const data = await res.json();
+      //     this.update({ devices: data });
+      //     console.log({ devices: this.state.devices });
+      //   } catch (error) {
+      //     console.log({ error });
+      //   }
+      // },
+      // async onBeforeMount(props, state) {
+      //   await this.getConnectedDevices();
+      // },
     }
   </script>
 </project-detail>

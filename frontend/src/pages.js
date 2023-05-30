@@ -10,4 +10,9 @@ export default [{
   path: '/project',
   label: 'Project',
   componentName: 'project'
+},
+{
+  path: '/project/:slug',
+  label: 'Project',
+  componentName: 'project-details'
 }]

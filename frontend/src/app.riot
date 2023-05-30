@@ -1,8 +1,18 @@
 <app>
   <div class="container">
     <router>
-      <navigation ap={state.activePage}></navigation>
-      <div class="main-content">
+        <route path="/">
+            <nav is="{'zp-navigation'}" ap="{state.activePage}"/>
+            <home is="{'home'}"/>
+        </route>
+        <route path="/project/:slug">
+            <nav is="{'project-navigation'}" ap="{route.params.slug}"/>
+            <about is="{'project-detail'}"/>
+            Hello dear { route.params.slug }
+        </route>
+        
+
+      <!-- <div class="main-content">
         <div if={state.showNotFound} class="row">
           <div class="column">
             <not-found />
@@ -10,12 +20,9 @@
         </div>
         <div if={!state.showNotFound} class="row">
           <div class="column">
-            <route each={page in state.pages} path={page.path}>
-              <main is={page.componentName}/>
-            </route>
           </div>
         </div>
-      <div>
+      <div> -->
     </router>
   </div>
   <sidebar></sidebar>
@@ -72,7 +79,11 @@
       onProjectRoute(path) {
         // show the project page
         const activePage = pages.find(p => match('/project', toRegexp(p.path)))
-        console.log(path.pathname + "jhjh")
+        console.log("projectPathname" + path.pathname)
+        let pathComponents = path.pathname.split("/")
+        if(pathComponents[1] === "project" && typeof pathComponents[2] !== "undefined" && pathComponents[2] != ""){
+            riot.eventBus.trigger('activeProjectSlug', pathComponents[2])
+        }
         this.update({
           activePage,
           showNotFound: !activePage

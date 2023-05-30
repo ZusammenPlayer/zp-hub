@@ -2,6 +2,7 @@
   <div class="row">
     <nav class="navigation menu">
         <section class="container">
+            hallo {props.test}
             <zp-navigation ap={state.activePage} if={!props.ap.path.startsWith('/project')}/> 
             <project-navigation ap={state.activePage} if={props.ap.path.startsWith('/project')}/> 
         </section>
@@ -27,7 +28,7 @@
                 this.update({
                     activePage
                 })
-                console.log('activePage: ' + this.state.activePage.componentName)
+                console.log('activePage N: ' + this.state.activePage.componentName)
             }
             riot.eventBus.on('activePage', function(input) {      
                 activePageUpdate(input)
