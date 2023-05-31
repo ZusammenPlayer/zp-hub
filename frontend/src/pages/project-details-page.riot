@@ -1,8 +1,10 @@
 <project-details>
     <h1>Project Detail <b>{state.title}</b></h1>
     <p if={ state.load_error } class="error">{ state.load_error }</p>
-    <p>Here I describe who I am and what I do {props.params.slug} {props.params.action}</p>
-
+    <div if={state.currentProject !== null}>        
+        <div is="cue-list" data-riot-component show={props.params.action == 'cuelist'} cuelist={state.currentProject.cuelists[0]}></div>
+    </div>
+    
     <script>
         import observable from '@riotjs/observable'
         var riot = require('riot')
@@ -11,14 +13,16 @@
             state: {
                 title: 'Project',
                 activePage: null,
-                load_error: null
+                load_error: null,
+                currentProject: null
             },
             async getProject(_slug) {
                 const res = await fetch('/api/project?slug=' + _slug);
                 if (res.status === 200) {
                     const data = await res.json();
                     riot.eventBus.trigger('activeProject', data) 
-                    this.update({ title: data.name });
+                    this.update({ title: data.name, currentProject: data });
+                    console.log("project: " + this.state.currentProject.name);
                 } else if (res.status === 400) {
                     const error = await res.json();
                     this.update({ title: [], load_error: error.message });

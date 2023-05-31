@@ -1,0 +1,40 @@
+<cue-list>
+    <style>
+        .cue-container {
+            padding: 5px;
+            margin: 5px;
+            width: "100%";
+            background-color: #ddd;
+        }
+    </style>
+
+    <h3>cue list</h3>
+    <p>name: {props.cuelist.name}</p>
+    <div>
+        <div class="row">
+            <div class="column column-40">label</div>
+            <div class="column column-40">mapping</div>
+            <div class="column column-20">action</div>
+        </div>
+        <div class="row cue-container" each={ cue in props.cuelist.cues }>
+            <div class="column column-30">{cue.label}</div>
+            <div class="column column-50">
+                <div each={mapping in cue.mappings}>{mapping.virtual_device_id + " -> " + mapping.scene_id}</div>
+            </div>
+            <div class="column column-20">
+                <button data-id={cue.id} onclick={triggerCue}>go 2</button>
+            </div>
+        </div>
+    <div>
+    
+    <script>
+        export default {
+            state: {},
+            async onBeforeMount(props, state) {},
+            async triggerCue(e) {
+                console.log('event: ' + e);
+                console.log('cue id: ' + e.target.dataset.id);
+            }
+        }
+    </script>
+</cue-list>
