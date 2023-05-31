@@ -1,7 +1,24 @@
 <app>
   <div class="container">
-    <router>
-        <route path="/">
+   
+      <router>
+        <navigation ap={state.activePage}></navigation>
+        <div class="main-content">
+          <div if={state.showNotFound} class="row">
+            <div class="column">
+              <not-found />
+            </div>
+          </div>
+          <div if={!state.showNotFound} class="row">
+            <div class="column">
+              <route each={page in state.pages} path={page.path}>
+                <main is={page.componentName} params="{route.params}"/>
+              </route>
+            </div>
+          </div>
+        <div>
+      </router>
+        <!-- <route path="/">
             <nav is="{'zp-navigation'}" ap="{state.activePage}"/>
             <home is="{'home'}"/>
         </route>
@@ -9,7 +26,7 @@
             <nav is="{'project-navigation'}" ap="{route.params.slug}"/>
             <about is="{'project-detail'}"/>
             Hello dear { route.params.slug }
-        </route>
+        </route> -->
         
 
       <!-- <div class="main-content">
@@ -23,7 +40,6 @@
           </div>
         </div>
       <div> -->
-    </router>
   </div>
   <sidebar></sidebar>
 
@@ -45,17 +61,14 @@
         NotFound,
         Home: lazy(Loader, () => import(
           /* webpackPrefetch: true, webpackChunkName: 'pages/home' */
-          './pages/home.riot'
+          './pages/home-page.riot'
         )),
-        About: lazy(Loader, () => import(
-          /* webpackPrefetch: true, webpackChunkName: 'pages/about' */
-          './pages/about.riot'
-        )),
-        Project: lazy(Loader, () => import(
-          /* webpackPrefetch: true, webpackChunkName: 'pages/project' */
-          './pages/project.riot'
+        Projectdetail: lazy(Loader, () => import(
+          /* webpackPrefetch: true, webpackChunkName: 'pages/project-details' */
+          './pages/project-details-page.riot'
         )),
         Debug: lazy(Loader, () => import(
+          /* webpackPrefetch: true, webpackChunkName: 'pages/debug-page' */
           './pages/debug-page.riot'
         )),
       },
@@ -65,11 +78,7 @@
         activePage: defaultActivePage
       },
       onBeforeMount({ isServer }) {
-        // stream for project routes
-        this.projectRouteStream = route('(/project/.*)')
-        this.projectRouteStream.on.value(this.onProjectRoute)
-        // create a stream on all routes to catch the not-found page
-        this.anyRouteStream = route('(^(?!/project/).*)')
+        this.anyRouteStream = route('(.*)')
         this.anyRouteStream.on.value(this.onAnyRoute)
         
         var EventBus = function(){
@@ -79,24 +88,20 @@
       },
       onMounted(){
       },
-      onProjectRoute(path) {
-        // show the project page
-        const activePage = pages.find(p => match('/project', toRegexp(p.path)))
-        console.log("projectPathname" + path.pathname)
+      onAnyRoute(path) {
+        // show the not found page if none of the page paths are matched
+        var activePage = pages.find(p => match(path.pathname, toRegexp(p.path)))
+        activePage.currentPath = path.pathname
         let pathComponents = path.pathname.split("/")
         if(pathComponents[1] === "project" && typeof pathComponents[2] !== "undefined" && pathComponents[2] != ""){
-            riot.eventBus.trigger('activeProjectSlug', pathComponents[2])
+          activePage.currentProjectSlug = pathComponents[2]
+          activePage.currentProjectPath = "/" + pathComponents[1] + "/" + pathComponents[2] + "/"
+          if(typeof pathComponents[3] !== "undefined" && pathComponents[3] != ""){
+            activePage.currentProjectAction = pathComponents[3]
+          }
         }
-        this.update({
-          activePage,
-          showNotFound: !activePage
-        })
-        window.stateContainer.activePage = this.state.activePage
-        riot.eventBus.trigger('activePage', window.stateContainer.activePage)
-      },onAnyRoute(path) {
-        // show the not found page if none of the page paths are matched
-        const activePage = pages.find(p => match(path.pathname, toRegexp(p.path)))
-        console.log("oar " + path.pathname)
+        
+       // console.log("oar " + path.pathname)
         this.update({
           activePage,
           showNotFound: !activePage

@@ -3,16 +3,21 @@ export default [{
   label: 'ZusammenPlayer',
   componentName: 'home'
 }, {
-  path: '/project',
-  label: 'Project',
-  componentName: 'project'
+  path: '/about',
+  label: 'About',
+  componentName: 'about'
 }, {
   path: '/debug',
   label: 'Debugging',
-  componentName: 'debug-page'
+  componentName: 'debug'
 },
 {
   path: '/project/:slug',
   label: 'Project',
-  componentName: 'project-details'
+  componentName: 'projectdetail'
+},
+{
+  path: '/project/:slug/:action',
+  label: 'Project',
+  componentName: 'projectdetail'
 }]

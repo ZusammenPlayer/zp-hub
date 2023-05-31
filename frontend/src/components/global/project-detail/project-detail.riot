@@ -2,28 +2,9 @@
   <div class="main-content">
     <div class="row">
       <h1>Project Detail</h1>
-      <p>Here I describe who I am and what I do</p>
+      <p>Here I describe who I am and what I do {props.params}</p>
     </div>
   </div>
 
-  <script>
-    export default {
-      state: {
-        project: {}
-      },
-      // async getConnectedDevices() {
-      //   try {
-      //     const res = await fetch(`/api/device`);
-      //     const data = await res.json();
-      //     this.update({ devices: data });
-      //     console.log({ devices: this.state.devices });
-      //   } catch (error) {
-      //     console.log({ error });
-      //   }
-      // },
-      // async onBeforeMount(props, state) {
-      //   await this.getConnectedDevices();
-      // },
-    }
-  </script>
+  
 </project-detail>

@@ -1,14 +1,14 @@
 export default [{
-  path: './cuelists',
+  path: 'cuelists',
   label: 'Cuelists',
   componentName: 'cuelists'
 }, {
-    path: './scenes',
+    path: 'scenes',
     label: 'Scenes',
     componentName: 'scenes'
   },
   {
-    path: '/project/:slug/mapping',
+    path: 'mapping',
     label: 'Mapping',
     componentName: 'mapping'
   }]

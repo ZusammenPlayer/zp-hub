@@ -3,12 +3,11 @@
         <nav class="navigation menu">
             <section class="container">
                 <a class="navigation-title active" href="/">Zusammenplayer</a>
-                <a class="navigation-title {props.ap != null && props.ap === page ? 'active' : '' }" href="#">{ props.ap }</a>
-                    
+                <a class="navigation-title active" href="{ props.ap.currentProjectPath }">{ props.ap.currentProjectSlug }</a>
                 <a
                     each={page in state.projectPages}
-                    class="navigation-title {props.ap != null && props.ap === page ? 'active' : '' }"
-                    href={page.path}>
+                    class="navigation-title {props.ap.currentProjectAction != null && props.ap.currentProjectAction === page.componentName ? 'active' : '' }"
+                    href={props.ap.currentProjectPath}{page.path}>
                     {page.label}
                 </a>
             </section>
