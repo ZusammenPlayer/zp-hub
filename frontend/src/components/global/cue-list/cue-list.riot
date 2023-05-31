@@ -32,8 +32,21 @@
             state: {},
             async onBeforeMount(props, state) {},
             async triggerCue(e) {
-                console.log('event: ' + e);
-                console.log('cue id: ' + e.target.dataset.id);
+                e.preventDefault();
+                const data = {
+                    projectId: this.props.projectId,
+                    cuelistId: this.props.cuelist.id,
+                    cueId: e.target.dataset.id
+                };
+                try {
+                    const res = await fetch(`/api/project/trigger`, {
+                        method: 'post',
+                        body: JSON.stringify(data)
+                    });
+                    const json = await res.json();
+                } catch (error) {
+                    console.log({ error });
+                }
             }
         }
     </script>

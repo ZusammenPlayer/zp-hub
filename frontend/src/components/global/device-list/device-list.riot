@@ -13,8 +13,11 @@
 
   <div each={ device in state.devices } class="row">
     <div class="zp-device">
-      <p>{ device.name }</p>
-      <h6>{ device.type }</p>
+      <p>
+        { device.name }
+        <br/><small><b>&nbsp;id: {device.uid}</b></small>
+        <br/><small>&nbsp;type: { device.type }</small>
+      </p>
     </div>
   </div>
 

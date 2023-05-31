@@ -1,12 +1,19 @@
 import asyncio
+import random
 import socketio
+import sys
 
 sio = socketio.AsyncClient()
+
+_uid = 'player_id_' + str(random.randint(10000, 99999))
+
+if len(sys.argv) > 1:
+    _uid = str(sys.argv[1])
 
 config = {
     'name': 'Wohnzimmer',
     'type': 'player',
-    'uid': "lksdjfslkdfjslk"
+    'uid': _uid
 }
 
 @sio.event
@@ -33,6 +40,10 @@ async def set_sys(data):
     global config
     if data['name']:
         config.name = data['name']
+
+@sio.event
+async def trigger(data):
+    print('trigger: ', data)
 
 async def main():
     await sio.connect('http://127.0.0.1:8080')

@@ -2,6 +2,7 @@ import socketio
 from aiohttp import web
 import json
 import config
+import data_utils
 from zp_database import ZP_Database as Database, DatabaseException
 
 ROOM_DEVICES = 'room_devices'
@@ -59,9 +60,58 @@ async def update_project(request):
         database.save_project(project)
         return web.json_response(project)
 
-async def command(request):
-    print('command endpoint')
-    pass
+async def trigger_cue(request):
+    global connected_devices
+    
+    request_data = await request.json()
+
+    if 'projectId' not in request_data or 'cuelistId' not in request_data or 'cueId' not in request_data :
+        error = {'code': 42, 'message': 'invalid request data'}
+        return web.HTTPBadRequest(text=json.dumps(error))
+    
+    projectId = request_data['projectId']
+    cuelistId = request_data['cuelistId']
+    cueId = request_data['cueId']
+
+    project = database.get_project(projectId)
+    cuelist = None
+    for list in project['cuelists']:
+        if list['id'] == cuelistId:
+            cuelist = list
+
+    if cuelist is None:
+        error = {'code': 43, 'message': 'unknown cuelistId'}
+        return web.HTTPBadRequest(text=json.dumps(error))
+    
+    cue = None
+    for c in cuelist['cues']:
+        if c['id'] == cueId:
+            cue = c
+    
+    if cue is None:
+        error = {'code': 43, 'message': 'unknown cuelistId'}
+        return web.HTTPBadRequest(text=json.dumps(error))
+
+    print('trigger cue: ', cue['label'])
+
+    # collect all trigger
+    trigger = []
+    for mapping in cue['mappings']:
+        vdid = mapping['virtual_device_id']
+        scene_id = mapping['scene_id']
+
+        scene = data_utils.get_scene(project, scene_id)
+        devices = data_utils.get_devices(connected_devices, project, vdid)
+
+        for device in devices:
+            t = {'instructions': scene['instructions'], 'uid': device['uid'], 'sid': device['sid']}
+            trigger.append(t)
+
+    for t in trigger:
+        await sio.emit('trigger', t['instructions'], room=t['sid'])
+
+    response_data = {}
+    return web.json_response(response_data)
 
 async def debug_play(request):
     request_data = await request.json()
@@ -86,9 +136,9 @@ app.add_routes([
     web.post('/api/project', create_project),
     web.put('/api/project/{project_id}', update_project),
     web.get('/api/device', get_all_devices),
-    web.get('/api/command', command),
-    web.get('/', index_handler),
+    web.post('/api/project/trigger', trigger_cue),
     web.post('/api/debug/play', debug_play),
+    web.get('/', index_handler),
     web.static('/', 'web-client', show_index=True, follow_symlinks=True),
 ])
 
