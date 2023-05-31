@@ -11,7 +11,7 @@
           <div if={!state.showNotFound} class="row">
             <div class="column">
               <route each={page in state.pages} path={page.path}>
-                <main is={page.componentName} params="{route.params}"/>
+                <main is={page.componentName} params={route.params} ap={state.activePage}/>
               </route>
             </div>
           </div>

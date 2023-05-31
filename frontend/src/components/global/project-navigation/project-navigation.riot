@@ -23,23 +23,9 @@
         state: {
             title: 'Project',
             projectPages,
+            activeProject: '',
             activePage: null
         },
-        // async getProject() {
-        //         const res = await fetch('/api/project/' + );
-        //         if (res.status === 200) {
-        //             const data = await res.json();
-        //             this.update({ projects: data });
-        //         } else if (res.status === 400) {
-        //             const error = await res.json();
-        //             this.update({ projects: [], load_error: error.message });
-        //         } else {
-        //             this.update({ load_error: 'Error loading projects! status code: ' + res.status});
-        //         }
-        //     },
-        //     async onBeforeMount(props, state) {
-        //         await this.getProjects();
-        //     },
         onBeforeMount(){
             
         },
@@ -53,26 +39,30 @@
                     console.log('current Action: ' + this.state.activePage.currentProjectAction)
                 }
             }
-
+            const activeProjectUpdate = (input) => {
+                const activeProject = input
+                this.update({
+                    activeProject,
+                    title: input.name
+                })
+            }
             
             riot.eventBus.on('activePage', function(input) {     
                 activePageUpdate(input)
             })
+            riot.eventBus.on('activeProject', function(input) {     
+                activeProjectUpdate(input)
+            })
             
-            const titleUpdate = (input) => {
-                const title = input
-                this.update({
-                    title
-                })
-            }
-            const getProps = () => {
-                return this.props
-            }
-            setTimeout(function(){
+            
+            // const getProps = () => {
+            //     return this.props
+            // }
+            // setTimeout(function(){
                 
-                let _props = getProps()
-                titleUpdate(_props.ap.currentProjectSlug)
-            },5000)
+            //     let _props = getProps()
+            //     titleUpdate(_props.ap.currentProjectSlug)
+            // },5000)
         }
         
         
