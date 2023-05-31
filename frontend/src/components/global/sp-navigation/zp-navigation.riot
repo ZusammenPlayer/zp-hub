@@ -25,7 +25,6 @@
                 this.update({
                     activePage
                 })
-                console.log('activePage zpN: ' + this.state.activePage.componentName)
             }
             riot.eventBus.on('activePage', function(input) {      
                 activePageUpdate(input)

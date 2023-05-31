@@ -3,7 +3,7 @@
         <nav class="navigation menu">
             <section class="container">
                 <a class="navigation-title active" href="/">Zusammenplayer</a>
-                <a class="navigation-title active" href="{ props.ap.currentProjectPath }">{ props.ap.currentProjectSlug }</a>
+                <a class="navigation-title active" href="{ props.ap.currentProjectPath }">{state.title}</a>
                 <a
                     each={page in state.projectPages}
                     class="navigation-title {props.ap.currentProjectAction != null && props.ap.currentProjectAction === page.componentName ? 'active' : '' }"
@@ -41,8 +41,6 @@
         //         await this.getProjects();
         //     },
         onBeforeMount(){
-            //console.log('huhu') 
-            //this.newPage(window.stateContainer.activePage)
             
         },
         onMounted() {
@@ -51,16 +49,30 @@
                 this.update({
                     activePage
                 })
-                console.log('activePage pN: ' + this.state.activePage.componentName)
+                if(typeof this.state.activePage.currentProjectAction !== "undefined"){
+                    console.log('current Action: ' + this.state.activePage.currentProjectAction)
+                }
             }
+
+            
             riot.eventBus.on('activePage', function(input) {     
                 activePageUpdate(input)
             })
-            var title = location.pathname
-            this.update({
-                title: location.pathname
-            })
-            console.log(location.pathname)
+            
+            const titleUpdate = (input) => {
+                const title = input
+                this.update({
+                    title
+                })
+            }
+            const getProps = () => {
+                return this.props
+            }
+            setTimeout(function(){
+                
+                let _props = getProps()
+                titleUpdate(_props.ap.currentProjectSlug)
+            },5000)
         }
         
         
