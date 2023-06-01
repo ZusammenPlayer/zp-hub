@@ -6,6 +6,7 @@ def get_scene(project, scene_id):
         if s['id'] == scene_id:
             scene = s
     return scene
+            
 
 def get_devices(connected_devices, project, virtual_device_id):
     devices = []
@@ -23,3 +24,4 @@ def get_devices(connected_devices, project, virtual_device_id):
                 device = {'uid': d, 'sid': cd['sid']}
                 devices.append(device)
     return devices
+    

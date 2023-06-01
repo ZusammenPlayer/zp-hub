@@ -45,6 +45,10 @@ async def set_sys(data):
 async def trigger(data):
     print('trigger: ', data)
 
+@sio.event
+async def pause(data):
+    print('pause: ', data)
+
 async def main():
     await sio.connect('http://127.0.0.1:8080')
     await sio.wait()

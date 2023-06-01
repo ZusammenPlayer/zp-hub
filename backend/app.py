@@ -62,11 +62,11 @@ async def update_project(request):
 
 async def trigger_cue(request):
     global connected_devices
-    
+
     request_data = await request.json()
 
     if 'projectId' not in request_data or 'cuelistId' not in request_data or 'cueId' not in request_data :
-        error = {'code': 42, 'message': 'invalid request data'}
+        error = {'code': 41, 'message': 'invalid request data'}
         return web.HTTPBadRequest(text=json.dumps(error))
     
     projectId = request_data['projectId']
@@ -89,7 +89,7 @@ async def trigger_cue(request):
             cue = c
     
     if cue is None:
-        error = {'code': 43, 'message': 'unknown cuelistId'}
+        error = {'code': 44, 'message': 'unknown cueId'}
         return web.HTTPBadRequest(text=json.dumps(error))
 
     print('trigger cue: ', cue['label'])
@@ -112,6 +112,31 @@ async def trigger_cue(request):
 
     response_data = {}
     return web.json_response(response_data)
+
+async def pause_all(request):
+    global connected_devices
+
+    # for now just send pause event to all connected devices
+    # later we will change it so that only devices that are used 
+    # within a project are paused
+
+    # request_data = await request.json()
+
+    # if 'projectId' not in request_data:
+    #     error = {'code': 41, 'message': 'invalid request data'}
+    #     return web.HTTPBadRequest(text=json.dumps(error))
+
+    # projectId = request_data['projectId']
+    # project = database.get_project(projectId)
+    
+    # if project is None:
+    #     error = {'code': 40, 'message': 'project not found'}
+    #     return web.HTTPBadRequest(text=json.dumps(error))
+    
+    # response_data = []
+    # return web.json_response(response_data)
+    await sio.emit('pause', 'pause')
+
 
 async def debug_play(request):
     request_data = await request.json()
@@ -137,6 +162,7 @@ app.add_routes([
     web.put('/api/project/{project_id}', update_project),
     web.get('/api/device', get_all_devices),
     web.post('/api/project/trigger', trigger_cue),
+    web.post('/api/project/pause', pause_all),
     web.post('/api/debug/play', debug_play),
     web.get('/', index_handler),
     web.static('/', 'web-client', show_index=True, follow_symlinks=True),

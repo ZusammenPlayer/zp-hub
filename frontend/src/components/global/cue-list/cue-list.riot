@@ -11,6 +11,9 @@
     <h3>cue list</h3>
     <p>name: {props.cuelist.name}</p>
     <div>
+        <div>
+            <button onclick={triggerPause}>pause all</button>
+        </div>
         <div class="row">
             <div class="column column-40">label</div>
             <div class="column column-40">mapping</div>
@@ -40,6 +43,19 @@
                 };
                 try {
                     const res = await fetch(`/api/project/trigger`, {
+                        method: 'post',
+                        body: JSON.stringify(data)
+                    });
+                    const json = await res.json();
+                } catch (error) {
+                    console.log({ error });
+                }
+            },
+            async triggerPause(e) {
+                e.preventDefault();
+                const data = { projectId: this.props.projectId };
+                try {
+                    const res = await fetch(`/api/project/pause`, {
                         method: 'post',
                         body: JSON.stringify(data)
                     });
