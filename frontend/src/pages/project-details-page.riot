@@ -3,6 +3,7 @@
     <p if={ state.load_error } class="error">{ state.load_error }</p>
     <div if={state.currentProject !== null}>        
         <div is="cue-list" data-riot-component if={props.ap.currentProjectAction === 'cuelists'} projectId={state.currentProject.id} cuelist={state.currentProject.cuelists[0]}></div>
+        <div is="scene-list" data-riot-component if={props.ap.currentProjectAction === 'scenes'} project={state.currentProject}></div>
     </div>
     
     <script>

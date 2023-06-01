@@ -1,0 +1,33 @@
+<scene-list>
+
+    <style>
+        .scene-container {
+            padding: 5px;
+            margin: 5px;
+            width: "100%";
+            background-color: #ddd;
+        }
+        .code {
+            font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+        }
+    </style>
+
+    <h3>scene list</h3>
+
+    <div>
+        <div class="row scene-container" each={scene in props.project.scenes}>
+            <div class="column column-25"><p>{ scene.name}</p></div>
+            <div class="column column-75">
+                <textarea readonly class="code" rows="3" value="{scene.instructions}"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            state: {},
+            async onBeforeMount(props, state) {}
+        }
+    </script>
+
+</scene-list>
