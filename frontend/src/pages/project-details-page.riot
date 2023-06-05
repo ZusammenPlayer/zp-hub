@@ -4,6 +4,7 @@
     <div if={state.currentProject !== null}>        
         <div is="cue-list" data-riot-component if={props.ap.currentProjectAction === 'cuelists'} projectId={state.currentProject.id} cuelist={state.currentProject.cuelists[0]}></div>
         <div is="scene-list" data-riot-component if={props.ap.currentProjectAction === 'scenes'} project={state.currentProject}></div>
+        <div is="device-mappings" data-riot-component if={props.ap.currentProjectAction === 'mapping'} project={state.currentProject}></div>
     </div>
     
     <script>

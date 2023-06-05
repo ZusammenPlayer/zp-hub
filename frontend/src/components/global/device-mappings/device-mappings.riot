@@ -1,0 +1,29 @@
+<device-mappings>
+    <style>
+        .zp-container {
+            padding: 5px;
+            margin: 5px;
+            width: "100%";
+            background-color: #ddd;
+        }
+    </style>
+
+    <h3>device mappings</h3>
+
+    <div>
+        <div class="row zp-container" each={virtual_device in props.project.virtual_devices}>
+            <div class="column column-50"><p>{ virtual_device.name}</p></div>
+            <div class="column column-50">
+                <p each={id in virtual_device.device_ids}>{id}</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            state: {},
+            async onBeforeMount(props, state) {}
+        }
+    </script>
+
+</device-mappings>
