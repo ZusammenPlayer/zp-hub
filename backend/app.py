@@ -1,18 +1,26 @@
 import socketio
-from aiohttp import web
+from aiohttp import web, MultipartReader
 import json
 import config
 import data_utils
 from zp_database import ZP_Database as Database, DatabaseException
+from minio import Minio
+from minio.error import S3Error
+import os
+import magic
+import hashlib
 
 ROOM_DEVICES = 'room_devices'
 ROOM_WEB = 'room_web_clients'
 
 connected_devices = []
 database = Database(config.zp_data_path)
+mc = Minio(config.zp_minio_endpoint, access_key=config.zp_minio_user, secret_key=config.zp_minio_password)
+
+
 
 async def index_handler(request):
-    with open('web-client/index.html') as f:
+    with open(config.zp_web_client_path + '/index.html') as f:
         html = f.read()
         return web.Response(text=html, content_type='text/html')
 
@@ -59,6 +67,72 @@ async def update_project(request):
             project['cuelists'] = request_data['cuelists']
         database.save_project(project)
         return web.json_response(project)
+
+async def upload_project_file(request):
+    project_id = None
+    file_data = None
+
+    # read request data
+    reader = await request.multipart()
+    while True:
+        field = await reader.next()
+        if field is None:
+            break
+
+        if field.name == 'project_id':
+            project_id = await field.read(decode=True)
+            project_id = project_id.decode("utf-8") 
+        
+        if field.name == 'file':
+            filename = field.filename
+            file_data = await field.read(decode=False)
+    
+    # validate request data
+    if project_id is None:
+        error = {'code': 41, 'message': 'invalid request data - project_id missing'}
+        return web.HTTPBadRequest(text=json.dumps(error))
+    
+    project = database.get_project(project_id)
+    if project is None:
+        error = {'code': 41, 'message': 'invalid request data - project not found'}
+        return web.HTTPBadRequest(text=json.dumps(error))
+    
+    if file_data is None:
+        error = {'code': 41, 'message': 'invalid request data - file is missing'}
+        return web.HTTPBadRequest(text=json.dumps(error))
+    
+    # check if project data directory exists
+    project_data_dir = config.zp_data_path + '/projects/' + project_id
+    if not os.path.exists(project_data_dir):
+        os.mkdir(project_data_dir)
+    
+    file_path = project_data_dir + '/' + filename
+    with open(file_path, 'wb') as f:
+        f.write(file_data)
+    
+    mime_type = magic.from_file(file_path, mime=True)
+    md5 = readable_hash = hashlib.md5(file_data).hexdigest()
+
+
+    # add file to project file
+    project_file = {
+        'filename': filename,
+        'file_path': file_path,
+        'mime_type': mime_type,
+        'md5': md5,
+    }
+
+    project_files = []
+    if 'media' in project:
+        project_files = project['media']
+
+    project_files.append(project_file)
+    
+    project['media'] = project_files
+    database.save_project(project)
+    
+    return web.json_response(project_file)
+
 
 async def trigger_cue(request):
     global connected_devices
@@ -159,13 +233,14 @@ app.add_routes([
     web.get('/api/project/all', get_all_projects),
     web.get('/api/project', get_project),
     web.post('/api/project', create_project),
+    web.post('/api/project/file', upload_project_file),
     web.put('/api/project/{project_id}', update_project),
     web.get('/api/device', get_all_devices),
     web.post('/api/project/trigger', trigger_cue),
     web.post('/api/project/pause', pause_all),
     web.post('/api/debug/play', debug_play),
     web.get('/', index_handler),
-    web.static('/', 'web-client', show_index=True, follow_symlinks=True),
+    web.static('/', config.zp_web_client_path, show_index=True, follow_symlinks=True),
 ])
 
 # socket io event handling

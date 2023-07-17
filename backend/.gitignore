@@ -1,3 +1,5 @@
 projects
 config.py
 db.json
+
+/data
