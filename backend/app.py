@@ -79,7 +79,7 @@ async def upload_project_file(request):
         if field is None:
             break
 
-        if field.name == 'project_id':
+        if field.name == 'projectId':
             project_id = await field.read(decode=True)
             project_id = project_id.decode("utf-8") 
         

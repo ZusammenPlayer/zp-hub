@@ -11,4 +11,9 @@ export default [{
     path: 'mapping',
     label: 'Mapping',
     componentName: 'mapping'
+  },
+  {
+    path: 'media',
+    label: 'Media',
+    componentName: 'media'
   }]

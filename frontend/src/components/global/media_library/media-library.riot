@@ -1,0 +1,61 @@
+<media-library>
+
+    <style>
+        .scene-container {
+            padding: 5px;
+            margin: 5px;
+            width: "100%";
+            background-color: #ddd;
+        }
+        .code {
+            font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+        }
+    </style>
+
+    <h1>media library</h1>
+
+    <form onsubmit={uploadFile}>
+        <input type="file" name="file">
+        <input type="submit">
+        <input type="hidden" name="projectId" value={props.project.id}>
+    </form>
+
+    <div>
+        <div class="row scene-container" each={file in props.project.media }>
+            <div class="column column-25"><p>{ file.filename }</p></div>
+            <div class="column column-75">
+                <pre>{ file }</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            state: {},
+            async onBeforeMount(props, state) {},
+            async uploadFile(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target)
+
+                fetch('/api/project/file', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                    // Handle the successful response
+                    console.log('Form data uploaded successfully!');
+                    } else {
+                    // Handle the error response
+                    console.error('Error uploading form data:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    // Handle any network or other errors
+                    console.error('Error uploading form data:', error);
+                });
+            }
+        }
+    </script>
+
+</media-library>
