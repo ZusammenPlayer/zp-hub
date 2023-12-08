@@ -270,10 +270,10 @@ async def register(sid, data):
         new_device['name'] = data['name']
         new_device['type'] = data['type']
         connected_devices.append(new_device)
-        sio.enter_room(sid, ROOM_DEVICES)
+        await sio.enter_room(sid, ROOM_DEVICES)
         print('device connected: ', sid)
     if data['type'] == 'web':
-        sio.enter_room(sid, ROOM_WEB)
+        await sio.enter_room(sid, ROOM_WEB)
         print('web ui connected: ', sid)
     await sio.emit('device-list', json.dumps(connected_devices), room=ROOM_WEB)
 
