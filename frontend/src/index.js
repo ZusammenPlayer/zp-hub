@@ -3,7 +3,7 @@ import { component } from 'riot';
 import App from './app.riot';
 import registerGlobalComponents from './register-global-components';
 import './components/assets/css/style.css';
-import './components/assets/css/googlefonts.css';
+import './components/assets/css/localfonts.css';
 import './components/assets/css/normalize.css';
 import './components/assets/css/milligram.css';
 // import 'socket.io-client';

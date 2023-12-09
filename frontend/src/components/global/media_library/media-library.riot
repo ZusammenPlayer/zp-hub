@@ -12,7 +12,7 @@
         }
     </style>
 
-    <h1>media library</h1>
+    <h1><b>{props.project.name}</b>: Media Library</h1>
 
     <form onsubmit={uploadFile}>
         <input type="file" name="file">
@@ -27,6 +27,12 @@
                 <pre>{ file }</pre>
             </div>
         </div>
+    </div>
+
+    <div> Todo: 
+        - json mit vorhandenen media und deren md5-id
+        - Check files
+
     </div>
 
     <script>

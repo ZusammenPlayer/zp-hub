@@ -6,24 +6,122 @@
             width: "100%";
             background-color: #ddd;
         }
+        .addDevice {
+            max-width: 50%;
+        }
     </style>
 
-    <h1>device mappings <b>{props.project.name}</b></h1>
+    <h1><b>{props.project.name}</b>: Mapping</h1>
 
     <div>
-        <div class="row zp-container" each={virtual_device in props.project.virtual_devices}>
-            <div class="column column-50"><p>{ virtual_device.name}</p></div>
+        <div class="row zp-container">
+            <div class="column column-50"><b>Virtual Device Name</b></div>
             <div class="column column-50">
-                <p each={id in virtual_device.device_ids}>{id}</p>
+                <b>Associated Real Device IDs</b>
             </div>
         </div>
+        <div class="row zp-container" each={(virtual_device, index) in props.project.virtual_devices}>
+            <div class="column column-50">  
+                <input type="text" name="virtual_device_name_{index}" id="virtual_device_name_{index}" size="30" maxlength="50" value="{virtual_device.name}">
+                <button class="button-outline" onclick={() => edit_virtual_device_name(index, document.getElementById('virtual_device_name_'+index).value)}>  edit  </button>
+            </div>
+            <div class="column column-50"> 
+                <div each={(id, index) in virtual_device.device_ids}> {index + 1} : {props.project.real_devices[id]} </div>
+                <div if="{Object.keys(props.project.real_devices).length > virtual_device.device_ids.length}">
+                    + : <select class="addDevice" name="select{virtual_device.id}" id=select{virtual_device.id}>
+                        <option each={real_device in Object.entries(props.project.real_devices)} value="{real_device[0]}" if="{virtual_device.device_ids.indexOf(real_device[0]) === -1}"> {real_device[1]} </option>
+                    </select> <button class="button-outline" onclick={() => add_device_to_virtual_device(document.getElementById('select' + virtual_device.id).value, index)}>  add  </button>
+                </div>
+                <div if="{this.state.add_real_device_messages.length > index && this.state.add_real_device_messages[index].text !== ''}">{this.state.add_real_device_messages[index].text}</div>
+                
+            </div>
+        </div>
+        <div class="row zp-container">
+            <div class="column column-50">  <input type="text" name="new_virtual_device_name" id="new_virtual_device_name" size="30" maxlength="50"></div>
+            <div class="column column-50">  <button class="button-outline" onclick={() => add_virtual_device(document.getElementById('new_virtual_device_name').value)}>  add  </button> 
+                <div if="{this.state.add_virtual_device_message.text !== ''}">{this.state.add_virtual_device_message.text}</div>
+            </div>
+        </div>
+        
     </div>
+    <div id="debug-footer" class="active"> 
+        <pre>{ JSON.stringify(props) }</pre>
+    </div> 
 
     <script>
         export default {
-            state: {},
-            async onBeforeMount(props, state) {}
+            props: {},
+            state: {
+                add_real_device_messages : [],
+                add_virtual_device_message: {},
+            },
+            async onBeforeMount(props, state) {
+                for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
+                    this.state.add_real_device_messages[virtual_device_index] = {};
+                    this.state.add_real_device_messages[virtual_device_index].text = "";
+                }
+                this.state.add_virtual_device_message.text = "";
+            },
+            add_device_to_virtual_device(real_device_id, virtual_device_index){
+                if(real_device_id != ""){
+                    if(this.props.project.virtual_devices[virtual_device_index].device_ids.indexOf(real_device_id) === -1){
+                        this.props.project.virtual_devices[virtual_device_index].device_ids.push(real_device_id);
+                        this.clear_messages();
+                    } else {
+                        this.state.add_real_device_messages[virtual_device_index] = {};
+                        this.state.add_real_device_messages[virtual_device_index].text = "Already part of this virtual device!";
+                        this.update();
+                    }
+                }
+            },
+            edit_virtual_device_name(virtual_device_index, virtual_device_name){
+                alert(virtual_device_name);
+                if(virtual_device_name != ""){
+                    this.props.project.virtual_devices[virtual_device_index].name = virtual_device_name;
+                    this.clear_messages();
+                    this.update();
+                } else {
+                    document.getElementById('virtual_device_name_'+virtual_device_index).value = "Please give it a name ;)";
+                }
+                
+            },
+            add_virtual_device(virtual_device_name){
+                
+                if(virtual_device_name != ""){
+                    let found_same_name = 0;
+                    for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
+                        if(this.props.project.virtual_devices[virtual_device_index].name == virtual_device_name){
+                            found_same_name++;
+                        }
+                    }
+                    if(found_same_name == 0){
+                        let new_virtual_device = {
+                            name: virtual_device_name,
+                            device_ids: [],
+                            id: "vdid" + (this.props.project.virtual_devices.length + 1)
+                        };
+                        this.props.project.virtual_devices.push(new_virtual_device);
+                        document.getElementById('new_virtual_device_name').value = "";
+                        this.clear_messages();
+                    } else {
+                        this.state.add_virtual_device_message.text = "There is another virtual device with the same name - please choose another one";
+                        this.update();
+                    }
+                } else {
+                    this.state.add_virtual_device_message.text = "Please enter a name";
+                    this.update();
+                }
+            },
+            clear_messages(){
+                for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
+                    this.state.add_real_device_messages[virtual_device_index] = {};
+                    this.state.add_real_device_messages[virtual_device_index].text = "";
+                    this.state.add_virtual_device_message.text = "";
+                    this.update();
+                }
+            }
         }
+        
     </script>
 
 </device-mappings>

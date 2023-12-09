@@ -2,23 +2,32 @@
 
   <style>
     .zp-device {
-      margin: 3px 0;
-      padding: 5px;
       width: 90%;
       margin-left: 10px;
-      background-color: #48f510;
+      background-color: #f2f6f1;
+    }
+    .zp-device-header {
+      background-color: #747972;
+      width: 100%;
+      margin: 0;
+      color: #f2f6f1;
+      padding-left: 1em;
+      font-size: small;
+    }
+    .zp-device-info {
+      padding: 0 1em;
     }
   </style>
 
   <h4>connected devices</h4>
 
-  <div each={ device in state.devices } class="row">
+  <div each={ device in state.devices } class="device-row">
     <div class="zp-device">
-      <p>
-        { device.name }
-        <br/><small><b>&nbsp;id: {device.uid}</b></small>
+      
+      <div class="zp-device-header"><b>{ device.name }</b></div>
+      <div class="zp-device-info">  <small>&nbsp;id: {device.uid}</small>
         <br/><small>&nbsp;type: { device.type }</small>
-      </p>
+      </div>
     </div>
   </div>
 

@@ -4,8 +4,8 @@ import json
 import config
 import data_utils
 from zp_database import ZP_Database as Database, DatabaseException
-from minio import Minio
-from minio.error import S3Error
+#from minio import Minio
+#from minio.error import S3Error
 import os
 import magic
 import hashlib
@@ -15,7 +15,7 @@ ROOM_WEB = 'room_web_clients'
 
 connected_devices = []
 database = Database(config.zp_data_path)
-mc = Minio(config.zp_minio_endpoint, access_key=config.zp_minio_user, secret_key=config.zp_minio_password)
+#mc = Minio(config.zp_minio_endpoint, access_key=config.zp_minio_user, secret_key=config.zp_minio_password)
 
 
 

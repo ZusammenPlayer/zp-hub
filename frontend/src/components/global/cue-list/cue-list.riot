@@ -8,16 +8,16 @@
         }
     </style>
 
-    <h1>cue list <b>{props.project.name}</b></h1>
+    <h1><b>{props.project.name}</b>: cue list</h1>
     <p>name: {props.cuelist.name}</p>
     <div>
         <div>
             <button onclick={triggerPause}>pause all</button>
         </div>
-        <div class="row">
-            <div class="column column-40">label</div>
-            <div class="column column-40">mapping</div>
-            <div class="column column-20">action</div>
+        <div class="row cue-container">
+            <div class="column column-30"><b>Label</b></div>
+            <div class="column column-50"><b>Mapping</b></div>
+            <div class="column column-20"><b>Action</b></div>
         </div>
         <div class="row cue-container" each={ cue in props.cuelist.cues }>
             <div class="column column-30">{cue.label}</div>
@@ -25,7 +25,7 @@
                 <div each={mapping in cue.mappings}>{mapping.virtual_device_id + " -> " + mapping.scene_id}</div>
             </div>
             <div class="column column-20">
-                <button data-id={cue.id} onclick={triggerCue}>go 2</button>
+                <button data-id={cue.id} onclick={triggerCue}>Go</button>
             </div>
         </div>
     <div>
