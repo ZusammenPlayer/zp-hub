@@ -22,11 +22,11 @@
         <div class="row scene-container" each={(scene, index) in props.project.scenes}>
             <div class="column column-25">
                 <input type="text" name="scene_name_{index}" id="scene_name_{index}" size="30" maxlength="50" value="{ scene.name}">
-                <button class="button-outline" onclick={() => edit_scene_name(index, document.getElementById('scene_name_'+index).value)}>  edit  </button>
+                <button class="button-outline" onclick={() => edit_scene_name(index, document.getElementById('scene_name_'+index).value)}>  apply  </button>
             </div> 
             <div class="column column-75">
                 <textarea class="code" rows="1" id="instruction_{index}" value="{scene.instructions}"></textarea>
-                <button class="button-outline" onclick={() => edit_scene_instruction(index, document.getElementById('instruction_'+index).value)}>  edit  </button> 
+                <button class="button-outline" onclick={() => edit_scene_instruction(index, document.getElementById('instruction_'+index).value)}>  apply  </button> 
             </div>
         </div>
         <div class="row scene-container" >

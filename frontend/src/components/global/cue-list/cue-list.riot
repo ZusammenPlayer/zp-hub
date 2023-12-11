@@ -6,6 +6,9 @@
             width: "100%";
             background-color: #ddd;
         }
+        .mapping {
+            max-width: 40%;
+        }
     </style>
 
     <h1><b>{props.project.name}</b>: cue list</h1>
@@ -19,21 +22,77 @@
             <div class="column column-50"><b>Mapping</b></div>
             <div class="column column-20"><b>Action</b></div>
         </div>
-        <div class="row cue-container" each={ cue in props.cuelist.cues }>
-            <div class="column column-30">{cue.label}</div>
+        <div class="row cue-container" each={ (cue, cue_index) in props.cuelist.cues }>
+            <div class="column column-30">
+                <input type="text" name="cue_label_{cue_index}" id="cue_label_{cue_index}" size="30" maxlength="50" value="{ cue.label}">
+                <button class="button-outline" onclick={() => change_cue_label(cue_index, document.getElementById('cue_label_'+cue_index).value)}>  change name  </button>
+                <div if="{typeof this.state.change_label_messages[cue_index] !== 'undefined' && this.state.change_label_messages[cue_index] != ''}">{this.state.change_label_messages[cue_index]}</div>
+            </div>
             <div class="column column-50">
-                <div each={mapping in cue.mappings}>{mapping.virtual_device_id + " -> " + mapping.scene_id}</div>
+                <div each={(mapping, mapping_index) in props.cuelist.cues[cue_index].mappings}>
+                    <div>
+                        <select class="mapping" name="mapping_vdid_{cue_index}_{mapping_index}" id="mapping_vdid_{cue_index}_{mapping_index}">
+                            <option value=""> delete </option>
+                            <option each={virtual_device in props.project.virtual_devices} value="{virtual_device.id}" selected="{virtual_device.id == mapping.virtual_device_id}"> {virtual_device.name} </option>
+                        </select> 
+                        <select class="mapping" name="mapping_scene_{cue_index}_{mapping_index}" id="mapping_scene_{cue_index}_{mapping_index}">
+                            <option value=""> do nothing </option>
+                            <option each={scene in props.project.scenes} value="{scene.id}" selected="{scene.id == mapping.scene_id}"> {scene.name} </option>
+                        </select>
+                        <button class="button-outline" onclick={() => change_single_mapping(document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value, document.getElementById('mapping_scene_' + cue_index + '_' + mapping_index).value, mapping_index, cue_index)}>  apply  </button>
+                        <div if="{typeof this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] !== 'undefined' && this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] != ''}">{this.state.change_single_mapping_messages[cue_index + '_' + mapping_index]}</div>
+                    </div>
+                </div>
+                <div if="{this.props.project.virtual_devices.length > props.cuelist.cues[cue_index].mappings.length}">
+                    <div>
+                        <select class="mapping" name="mapping_vdid_{cue_index}_new" id="mapping_vdid_{cue_index}_new">
+                            <option value=""> ... </option>
+                            <option each={virtual_device in props.project.virtual_devices} value="{virtual_device.id}"> {virtual_device.name} </option>
+                        </select> 
+                        <select class="mapping" name="mapping_scene_{cue_index}_new" id="mapping_scene_{cue_index}_new">
+                            <option value=""> ... </option>
+                            <option each={scene in props.project.scenes} value="{scene.id}"> {scene.name} </option>
+                        </select>
+                        <button class="button-outline" onclick={() => add_mapping(document.getElementById('mapping_vdid_' + cue_index + '_new').value, document.getElementById('mapping_scene_' + cue_index + '_new').value, cue_index)}>  add  </button>
+                    </div>
+                    <div if="{typeof this.state.change_single_mapping_messages[cue_index + '_new'] !== 'undefined' && this.state.change_single_mapping_messages[cue_index + '_new'] != ''}">{this.state.change_single_mapping_messages[cue_index + '_new']}</div>
+                </div>
+                
             </div>
             <div class="column column-20">
                 <button data-id={cue.id} onclick={triggerCue}>Go</button>
             </div>
         </div>
+        <div class="row cue-container">
+            <div class="column column-30">
+                Add Cue: <input type="text" name="cue_label_new" id="cue_label_new" size="30" maxlength="50" value="" style="max-width: 30%; margin-right: 1%;">
+                <button class="button-outline" onclick={() => add_cue(document.getElementById('cue_label_new').value)}>  add  </button>
+                <div if="{typeof this.state.change_label_messages['new'] !== 'undefined' && this.state.change_label_messages['new'] != ''}">{this.state.change_label_messages['new']}</div>
+            </div>
+        </div>
     <div>
+        <div id="debug-footer" class="active" > 
+            <textarea style="min-height: 20em;">{ JSON.stringify(props) }</textarea>
+        </div> 
     
     <script>
         export default {
-            state: {},
-            async onBeforeMount(props, state) {},
+            props: {},
+            state: {
+                vdevID2Index: {},
+                sceneID2Index: {},
+                change_single_mapping_messages: {},
+                change_label_messages: {}
+            },
+            async onBeforeMount(props, state) {
+                for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
+                    this.state.vdevID2Index[this.props.project.virtual_devices[virtual_device_index].id] = virtual_device_index;
+                    
+                }
+                for(let scene_index = 0; scene_index < this.props.project.scenes.length; scene_index++){
+                    this.state.sceneID2Index[this.props.project.scenes[scene_index].id] = scene_index; 
+                }
+            },
             async triggerCue(e) {
                 e.preventDefault();
                 const data = {
@@ -63,6 +122,124 @@
                 } catch (error) {
                     console.log({ error });
                 }
+            },
+            //mappings
+            change_single_mapping(vdid, scene_id, mapping_index, cue_index){
+                this.clear_messages();
+                if(vdid == ""){
+                    //delete mapping
+                    this.props.cuelist.cues[cue_index].mappings.splice(mapping_index, 1);
+                    this.update();
+                } else  {
+                    //check if player has already another mapping
+                    let found_same_mapping = 0;
+                    for(let mappings_index = 0; mappings_index < this.props.cuelist.cues[cue_index].mappings.length; mappings_index++){
+                        if(this.props.cuelist.cues[cue_index].mappings[mappings_index].virtual_device_id == vdid){
+                            found_same_mapping++;
+                        }
+                    }
+                    if(found_same_mapping == 0){
+                        this.props.cuelist.cues[cue_index].mappings[mapping_index] = {"virtual_device_id": vdid, "scene_id": scene_id};
+                        this.update();
+                    } else {
+                        document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value = this.props.cuelist.cues[cue_index].mappings[mapping_index].virtual_device_id;
+                        this.display_single_mapping_message(cue_index, mapping_index, "Found same mapping. Please choose another one.");
+                        this.update();
+                    }
+                }
+                
+            },
+            add_mapping(vdid, scene_id, cue_index){
+                this.clear_messages();
+                if(vdid != ""){
+                    //check if player has already another mapping
+                    let found_same_mapping = 0;
+                    for(let mappings_index = 0; mappings_index < this.props.cuelist.cues[cue_index].mappings.length; mappings_index++){
+                        if(this.props.cuelist.cues[cue_index].mappings[mappings_index].virtual_device_id == vdid){
+                            found_same_mapping++;
+                        }
+                    }
+                    if(found_same_mapping == 0){
+                        this.props.cuelist.cues[cue_index].mappings.push({"virtual_device_id": vdid, "scene_id": scene_id});
+                        document.getElementById('mapping_vdid_' + cue_index + '_new').value = "";
+                        document.getElementById('mapping_scene_' + cue_index + '_new').value = "";
+                        this.update();
+                    } else {
+                        this.display_single_mapping_message(cue_index, 'new', "Found same mapping. Please choose another one.");
+                        this.update();
+                    }
+                } else {
+                    //no vdev
+                    this.display_single_mapping_message(cue_index, 'new', "Please choose a virtual device");
+                    this.update();
+                }
+                
+            },
+            //cues
+            change_cue_label(cue_index,label){
+                this.clear_messages();
+                if(label != ""){
+                    //check if another cue has the same label
+                    let found_same_label = 0;
+                    for(let cues_index = 0; cues_index < this.props.cuelist.cues.length; cues_index++){
+                        if(this.props.cuelist.cues[cues_index].label == label && cues_index != cue_index){
+                            found_same_label++;
+                        }
+                    }
+                    if(found_same_label == 0){
+                        this.props.cuelist.cues[cue_index].label = label;
+                        this.update();
+                    } else {
+                        document.getElementById('cue_label_' + cue_index).value = this.props.cuelist.cues[cue_index].label;
+                        this.display_label_message(cue_index, "Found another cue with the same label. Please choose another one.");
+                        this.update();
+                    }
+                } else {
+                    //empty label
+                    this.display_label_message(cue_index, "Please enter a label");
+                    this.update();
+                }
+            },
+            add_cue(label){
+                this.clear_messages();
+                if(label != ""){
+                    //check if another cue has the same label
+                    let found_same_label = 0;
+                    for(let cues_index = 0; cues_index < this.props.cuelist.cues.length; cues_index++){
+                        if(this.props.cuelist.cues[cues_index].label == label){
+                            found_same_label++;
+                        }
+                    }
+                    if(found_same_label == 0){
+                        this.props.cuelist.cues.push({'label': label, "id": "cueid" + this.props.cuelist.cues.length + 1,"mappings": []});
+                        document.getElementById('cue_label_new').value = "";
+                        this.update();
+                    } else {
+                        this.display_label_message('new', "Found another cue with the same label. Please choose another one.");
+                        this.update();
+                    }
+                } else {
+                    //empty label
+                    this.display_label_message('new', "Please enter a label");
+                    this.update();
+                }
+            },
+            //messages
+            display_single_mapping_message(cue_index, mapping_index, text){
+                if(mapping_index = "new"){
+                    this.state.change_single_mapping_messages[cue_index + '_new'] = text;
+                } else {
+                    this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] = text;
+                }
+                
+            },
+            display_label_message(cue_index, text){
+                this.state.change_label_messages[cue_index] = text;
+            },
+            clear_messages(){
+                this.state.change_label_messages = {};
+                this.state.change_single_mapping_messages = {};
+                this.update();
             }
         }
     </script>

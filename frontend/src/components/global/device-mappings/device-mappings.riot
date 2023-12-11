@@ -28,7 +28,7 @@
             <div class="column column-50"> 
                 <div each={(id, index) in virtual_device.device_ids}> {index + 1} : {props.project.real_devices[id]} </div>
                 <div if="{Object.keys(props.project.real_devices).length > virtual_device.device_ids.length}">
-                    + : <select class="addDevice" name="select{virtual_device.id}" id=select{virtual_device.id}>
+                    + : <select class="addDevice" name="select{virtual_device.id}" id="select{virtual_device.id}"">
                         <option each={real_device in Object.entries(props.project.real_devices)} value="{real_device[0]}" if="{virtual_device.device_ids.indexOf(real_device[0]) === -1}"> {real_device[1]} </option>
                     </select> <button class="button-outline" onclick={() => add_device_to_virtual_device(document.getElementById('select' + virtual_device.id).value, index)}>  add  </button>
                 </div>
