@@ -24,7 +24,7 @@ class DatabaseException(Exception):
         }
         return json.dumps(err)
 
-class ZP_Database:
+class Database:
     """Simple database abstraction providing access and manipulation of 
     ZP data that need to be persisted. This implementation usees simple 
     json files and automatically - if available - takes care of versioning 
