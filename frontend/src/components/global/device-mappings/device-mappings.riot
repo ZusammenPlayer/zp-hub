@@ -38,17 +38,17 @@
         </div>
         <div class="row zp-container">
             <div class="column column-50">  <input type="text" name="new_virtual_device_name" id="new_virtual_device_name" size="30" maxlength="50"></div>
-            <div class="column column-50">  <button class="button-outline" onclick={() => add_virtual_device(document.getElementById('new_virtual_device_name').value)}>  add  </button> 
+            <div class="column column-50">  <button class="button-outline" onclick={() => add_virtual_device(document.getElementById('new_virtual_device_name').value)}>  add  mapping</button> 
                 <div if="{this.state.add_virtual_device_message.text !== ''}">{this.state.add_virtual_device_message.text}</div>
             </div>
         </div>
         
     </div>
-    <div id="debug-footer" class="active"> 
-        <pre>{ JSON.stringify(props) }</pre>
-    </div> 
 
     <script>
+        import observable from '@riotjs/observable'
+        var riot = require('riot');
+
         export default {
             props: {},
             state: {
@@ -56,11 +56,11 @@
                 add_virtual_device_message: {},
             },
             async onBeforeMount(props, state) {
-                for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
-                    this.state.add_real_device_messages[virtual_device_index] = {};
-                    this.state.add_real_device_messages[virtual_device_index].text = "";
+                for(let virtual_device_index = 0; virtual_device_index < props.project.virtual_devices.length; virtual_device_index++){
+                    state.add_real_device_messages[virtual_device_index] = {};
+                    state.add_real_device_messages[virtual_device_index].text = "";
                 }
-                this.state.add_virtual_device_message.text = "";
+                state.add_virtual_device_message.text = "";
             },
             add_device_to_virtual_device(real_device_id, virtual_device_index){
                 if(real_device_id != ""){
@@ -75,9 +75,9 @@
                 }
             },
             edit_virtual_device_name(virtual_device_index, virtual_device_name){
-                alert(virtual_device_name);
                 if(virtual_device_name != ""){
                     this.props.project.virtual_devices[virtual_device_index].name = virtual_device_name;
+                    riot.eventBus.trigger('data_changed', {}); 
                     this.clear_messages();
                     this.update();
                 } else {
@@ -101,6 +101,7 @@
                             id: "vdid" + (this.props.project.virtual_devices.length + 1)
                         };
                         this.props.project.virtual_devices.push(new_virtual_device);
+                        riot.eventBus.trigger('data_changed', {}); 
                         document.getElementById('new_virtual_device_name').value = "";
                         this.clear_messages();
                     } else {

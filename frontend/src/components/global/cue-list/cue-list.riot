@@ -71,11 +71,12 @@
             </div>
         </div>
     <div>
-        <div id="debug-footer" class="active" > 
-            <textarea style="min-height: 20em;">{ JSON.stringify(props) }</textarea>
-        </div> 
+        
     
     <script>
+        import observable from '@riotjs/observable'
+        var riot = require('riot');
+        
         export default {
             props: {},
             state: {
@@ -134,12 +135,13 @@
                     //check if player has already another mapping
                     let found_same_mapping = 0;
                     for(let mappings_index = 0; mappings_index < this.props.cuelist.cues[cue_index].mappings.length; mappings_index++){
-                        if(this.props.cuelist.cues[cue_index].mappings[mappings_index].virtual_device_id == vdid){
+                        if(this.props.cuelist.cues[cue_index].mappings[mappings_index].virtual_device_id == vdid && mappings_index != mapping_index){
                             found_same_mapping++;
                         }
                     }
                     if(found_same_mapping == 0){
                         this.props.cuelist.cues[cue_index].mappings[mapping_index] = {"virtual_device_id": vdid, "scene_id": scene_id};
+                        riot.eventBus.trigger('data_changed', {}); 
                         this.update();
                     } else {
                         document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value = this.props.cuelist.cues[cue_index].mappings[mapping_index].virtual_device_id;
@@ -161,6 +163,7 @@
                     }
                     if(found_same_mapping == 0){
                         this.props.cuelist.cues[cue_index].mappings.push({"virtual_device_id": vdid, "scene_id": scene_id});
+                        riot.eventBus.trigger('data_changed', {}); 
                         document.getElementById('mapping_vdid_' + cue_index + '_new').value = "";
                         document.getElementById('mapping_scene_' + cue_index + '_new').value = "";
                         this.update();
@@ -188,6 +191,7 @@
                     }
                     if(found_same_label == 0){
                         this.props.cuelist.cues[cue_index].label = label;
+                        riot.eventBus.trigger('data_changed', {}); 
                         this.update();
                     } else {
                         document.getElementById('cue_label_' + cue_index).value = this.props.cuelist.cues[cue_index].label;
@@ -212,6 +216,7 @@
                     }
                     if(found_same_label == 0){
                         this.props.cuelist.cues.push({'label': label, "id": "cueid" + this.props.cuelist.cues.length + 1,"mappings": []});
+                        riot.eventBus.trigger('data_changed', {}); 
                         document.getElementById('cue_label_new').value = "";
                         this.update();
                     } else {

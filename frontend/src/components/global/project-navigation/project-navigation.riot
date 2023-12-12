@@ -3,9 +3,9 @@
         <nav class="navigation menu">
             <section class="container">
                 <a class="navigation-title active" href="/">Zusammenplayer</a>
-                <a class="navigation-title active" href="{ props.ap.currentProjectPath }">{state.title}</a>
+                <a class="navigation-title active" href="{ props.ap.currentProjectPath }">{this.state.title}</a>
                 <a
-                    each={page in state.projectPages}
+                    each={page in this.state.projectPages}
                     class="navigation-title {props.ap.currentProjectAction != null && props.ap.currentProjectAction === page.componentName ? 'active' : '' }"
                     href={props.ap.currentProjectPath}{page.path}>
                     {page.label}
@@ -36,7 +36,7 @@
                     activePage
                 })
                 if(typeof this.state.activePage.currentProjectAction !== "undefined"){
-                    console.log('current Action: ' + this.state.activePage.currentProjectAction)
+                    console.log('current Action N: ' + this.state.activePage.currentProjectAction)
                 }
             }
             const activeProjectUpdate = (input) => {
@@ -48,7 +48,7 @@
             }
             
             riot.eventBus.on('activePage', function(input) {     
-                activePageUpdate(input)
+                 activePageUpdate(input)
             })
             riot.eventBus.on('activeProject', function(input) {     
                 activeProjectUpdate(input)

@@ -1,16 +1,39 @@
 <project-details>
-    <p if={ state.load_error } class="error">{ state.load_error }</p>
-    <div if={state.currentProject !== null}>   
+    <p if={ state.load_error } class="error">{ this.state.load_error }</p>
+    <div if={this.state.currentProject !== null}>   
         <h1 if={props.ap.currentProjectAction !== 'cuelists' && props.ap.currentProjectAction !== 'scenes' && props.ap.currentProjectAction !== 'mapping' && props.ap.currentProjectAction !== 'media'}><b>{state.title}</b>: Project Details</h1>     
         <div is="cue-list" data-riot-component if={props.ap.currentProjectAction === 'cuelists'} project={state.currentProject} projectId={state.currentProject.id} cuelist={state.currentProject.cuelists[0]}></div>
         <div is="scene-list" data-riot-component if={props.ap.currentProjectAction === 'scenes'} project={state.currentProject}></div>
-        <div is="device-mappings" data-riot-component if={props.ap.currentProjectAction === 'mapping'} project={state.currentProject}></div>
-        <div is="media-library" data-riot-component if={props.ap.currentProjectAction === 'media'} project={state.currentProject}></div>
+        <div is="device-mappings" data-riot-component if={props.ap.currentProjectAction === 'mapping'} project={this.state.currentProject}></div>
+        <div is="media-library" data-riot-component if={props.ap.currentProjectAction === 'media'} project={this.state.currentProject}></div>
     </div>
+
+    <div id="debug-footer" class="active" > 
+        <textarea style="min-height: 20em;">{ JSON.stringify(this.state.currentProject) }</textarea>
+    </div> 
     
     <script>
         import observable from '@riotjs/observable'
         var riot = require('riot')
+
+        var STORAGE_KEY = 'zp-hub';
+
+        window.projectStorage = {
+            fetch: function () {
+                let parsed = {};
+                try {
+                    parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                } catch (e) {
+                    console.log('LS JSON parsing failed.')
+                    //this.update({ title: [], load_error: e });
+                    return [];
+                }
+                return parsed;
+            },
+            save: function (projectData) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(projectData));
+            }
+        };
         
         export default {
             state: {
@@ -20,22 +43,40 @@
                 currentProject: null
             },
             async getProject(_slug) {
-                const res = await fetch('/api/project?slug=' + _slug);
-                if (res.status === 200) {
-                    const data = await res.json();
-                    riot.eventBus.trigger('activeProject', data) 
-                    this.update({ title: data.name, currentProject: data });
-                    console.log("project: " + this.state.currentProject.name);
-                } else if (res.status === 400) {
-                    const error = await res.json();
-                    this.update({ title: [], load_error: error.message });
+                let getFromDisk = 0;
+                const localStorageData = await projectStorage.fetch();
+                if(localStorageData != []){
+                    if(localStorageData.slug == _slug){
+                        riot.eventBus.trigger('activeProject', localStorageData); 
+                        this.update({ title: localStorageData.name, currentProject: localStorageData });
+                       console.log("ls project: " + this.state.currentProject.name);
+                    } else {
+                        getFromDisk = 1;
+                    }
                 } else {
-                    console.log("else")
-                    this.update({ load_error: 'Error loading projects! status code: ' + res.status});
+                    getFromDisk = 1;
                 }
+
+                if(getFromDisk != 0){
+                    const res = await fetch('/api/project?slug=' + _slug);
+                    if (res.status === 200) {
+                        const data = await res.json();
+                        riot.eventBus.trigger('activeProject', data); 
+                        projectStorage.save(data);
+                        this.update({ title: data.name, currentProject: data });
+                        console.log("project: " + this.state.currentProject.name);
+                    } else if (res.status === 400) {
+                        const error = await res.json();
+                        this.update({ title: [], load_error: error.message });
+                    } else {
+                        console.log("else")
+                        this.update({ load_error: 'Error loading projects! status code: ' + res.status});
+                    }
+                }
+                
             },
             async onBeforeMount(props, state) {
-                await this.getProject(this.props.params.slug)
+                await this.getProject(props.params.slug)
             },
             onMounted() {
                 const activePageUpdate = (input) => {
@@ -48,17 +89,29 @@
                     }
                 }
 
+                const dataChanged = (input) => {
+                    const inputData = input;
+                    projectStorage.save(this.state.currentProject);
+                    this.update()
+                }
+
                 const getProject = (_slug) => {
                     this.getProject(_slug)
                 }
                 
-                riot.eventBus.on('activePage', async function(_activePage) {  
+                riot.eventBus.on('activePage', function(_activePage) {  
+                    activePageUpdate(_activePage);
                     if(typeof _activePage.currentProjectSlug !== 'undefined'){
-                       await getProject(_activePage.currentProjectSlug);
+                       getProject(_activePage.currentProjectSlug);
                     }   
-                    activePageUpdate(_activePage)
+                    
 
                 })
+
+                riot.eventBus.on('data_changed',function(input) {     
+                    
+                    dataChanged();
+                });
             }
             
             

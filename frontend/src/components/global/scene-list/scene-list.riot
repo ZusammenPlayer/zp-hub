@@ -22,26 +22,27 @@
         <div class="row scene-container" each={(scene, index) in props.project.scenes}>
             <div class="column column-25">
                 <input type="text" name="scene_name_{index}" id="scene_name_{index}" size="30" maxlength="50" value="{ scene.name}">
-                <button class="button-outline" onclick={() => edit_scene_name(index, document.getElementById('scene_name_'+index).value)}>  apply  </button>
+                <button class="button-outline" onclick={() => edit_scene_name(index, document.getElementById('scene_name_'+index).value)}>  change name  </button>
             </div> 
             <div class="column column-75">
                 <textarea class="code" rows="1" id="instruction_{index}" value="{scene.instructions}"></textarea>
-                <button class="button-outline" onclick={() => edit_scene_instruction(index, document.getElementById('instruction_'+index).value)}>  apply  </button> 
+                <button class="button-outline" onclick={() => edit_scene_instruction(index, document.getElementById('instruction_'+index).value)}>  change instruction  </button> 
             </div>
         </div>
         <div class="row scene-container" >
             <div class="column column-25"><input type="text" name="new_scene_name" id="new_scene_name" size="30" maxlength="50"></div>
-            <div class="column column-75"><button class="button-outline" onclick={() => add_scene(document.getElementById('new_scene_name').value)}>  add  </button> 
+            <div class="column column-75"><button class="button-outline" onclick={() => add_scene(document.getElementById('new_scene_name').value)}>  add  scene</button> 
                 <div if="{this.state.add_scene_message.text !== ''}">{this.state.add_scene_message.text}</div>
             </div>
         </div>
     </div>
-    <div id="debug-footer" class="active"> 
-        <pre>{ JSON.stringify(props) }</pre>
-    </div> 
 
     <script>
+        import observable from '@riotjs/observable'
+        var riot = require('riot');
+
         export default {
+            props: {},
             state: {
                 add_scene_message: {},
             },
@@ -56,6 +57,7 @@
                         id: 'sceneid' + (this.props.project.scenes.length + 1),
                     };
                     this.props.project.scenes.push(new_scene);
+                    riot.eventBus.trigger('data_changed', {}); 
                     document.getElementById('new_scene_name').value = "";
                     this.clear_messages();
                     this.update();
@@ -66,9 +68,9 @@
                 
             },
             edit_scene_name(scene_index, scene_name){
-                alert(scene_name);
                 if(scene_name != ""){
                     this.props.project.scenes[scene_index].name = scene_name;
+                    riot.eventBus.trigger('data_changed', {}); 
                     this.clear_messages();
                     this.update();
                 } else {
@@ -78,6 +80,7 @@
             },
             edit_scene_instruction(scene_index, instruction){
                 this.props.project.scenes[scene_index].instructions = instruction;
+                riot.eventBus.trigger('data_changed', {}); 
                 this.clear_messages();
                 this.update();
             },
