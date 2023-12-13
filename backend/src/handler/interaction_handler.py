@@ -1,5 +1,6 @@
 from aiohttp import web
 import json
+import logging
 from socketio_manager import SocketIOManager
 from database import Database
 import data_utils
@@ -47,7 +48,7 @@ async def trigger_cue(request):
         error = {"code": 44, "message": "unknown cueId"}
         return web.HTTPBadRequest(text=json.dumps(error))
 
-    print("trigger cue: ", cue["label"])
+    logging.info("trigger cue: ", cue["label"])
 
     # collect all trigger
     trigger = []
@@ -77,7 +78,7 @@ async def pause_all(request):
     sio_mngr: SocketIOManager = request["sio_mngr"]
     database: Database = request["db"]
 
-    print('pause all devices')
+    logging.info('pause all devices')
 
     # for now just send pause event to all connected devices
     # later we will change it so that only devices that are used

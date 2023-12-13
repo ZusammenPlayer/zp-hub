@@ -1,6 +1,7 @@
 from aiohttp import web
 import socketio
 import json
+import logging
 
 
 class SocketIOManager:
@@ -23,7 +24,7 @@ class SocketIOManager:
                     index = i
             if index != -1:
                 del self.connected_devices[index]
-            print(sid, " disconnected")
+            logging.info(sid, " disconnected")
             await sio.emit(
                 "device-list", json.dumps(self.connected_devices), room=self.ROOM_WEB
             )
@@ -38,10 +39,10 @@ class SocketIOManager:
                 new_device["type"] = data["type"]
                 self.connected_devices.append(new_device)
                 await sio.enter_room(sid, self.ROOM_DEVICES)
-                print("device connected: ", sid)
+                logging.info("device connected: ", sid)
             if data["type"] == "web":
-                sio.enter_room(sid, self.ROOM_WEB)
-                print("web ui connected: ", sid)
+                await sio.enter_room(sid, self.ROOM_WEB)
+                logging.info("web ui connected: " + sid)
             await sio.emit(
                 "device-list", json.dumps(self.connected_devices), room=self.ROOM_WEB
             )
