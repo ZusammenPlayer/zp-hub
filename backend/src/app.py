@@ -8,7 +8,7 @@ import logging.handlers
 
 
 def setup_logging():
-    log_file_name = config.log_file_path + "/zp-hub.log"
+    log_file_name = config.log_dir_path + "/zp-hub.log"
     formatter = logging.Formatter(
         "[%(levelname)s]%(asctime)s|%(filename)s - %(message)s"
     )
