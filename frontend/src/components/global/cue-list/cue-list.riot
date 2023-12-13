@@ -76,7 +76,7 @@
     <script>
         import observable from '@riotjs/observable'
         var riot = require('riot');
-        
+
         export default {
             props: {},
             state: {
@@ -205,6 +205,7 @@
                 }
             },
             add_cue(label){
+                
                 this.clear_messages();
                 if(label != ""){
                     //check if another cue has the same label
@@ -215,7 +216,8 @@
                         }
                     }
                     if(found_same_label == 0){
-                        this.props.cuelist.cues.push({'label': label, "id": "cueid" + this.props.cuelist.cues.length + 1,"mappings": []});
+                        let uuid = self.crypto.randomUUID();
+                        this.props.cuelist.cues.push({'label': label, "id": uuid,"mappings": []});
                         riot.eventBus.trigger('data_changed', {}); 
                         document.getElementById('cue_label_new').value = "";
                         this.update();

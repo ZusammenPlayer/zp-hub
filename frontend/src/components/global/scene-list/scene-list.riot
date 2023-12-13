@@ -51,10 +51,11 @@
             },
             add_scene(new_scene_name){
                 if(new_scene_name != ''){
+                    let uuid = self.crypto.randomUUID();
                     let new_scene = {
                         instructions: "",
                         name: new_scene_name,
-                        id: 'sceneid' + (this.props.project.scenes.length + 1),
+                        id: uuid,
                     };
                     this.props.project.scenes.push(new_scene);
                     riot.eventBus.trigger('data_changed', {}); 
