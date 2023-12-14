@@ -24,15 +24,9 @@
         <div class="row scene-container" each={file in props.project.media }>
             <div class="column column-25"><p>{ file.filename }</p></div>
             <div class="column column-75">
-                <pre>{ file }</pre>
+                <pre>{ file.md5 }</pre>
             </div>
         </div>
-    </div>
-
-    <div> Todo: 
-        - json mit vorhandenen media und deren md5-id
-        - Check files
-
     </div>
 
     <script>
