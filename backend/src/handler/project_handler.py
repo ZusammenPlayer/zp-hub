@@ -94,6 +94,18 @@ async def upload_project_file(request):
     if file_data is None:
         error = {"code": 41, "message": "invalid request data - file is missing"}
         return web.HTTPBadRequest(text=json.dumps(error))
+    
+    md5 = hashlib.md5(file_data).hexdigest()
+    
+    project_files = []
+    if "media" in project:
+        project_files = project["media"]
+        
+        # check if file already exists
+        for file in project_files:
+            if file["md5"] == md5:
+                error = {"code": 42, "message": "file already exists"}
+                return web.HTTPBadRequest(text = json.dumps(error))
 
     # check if project data directory exists
     project_data_dir = config.zp_data_path + "/projects/" + project_id
@@ -105,7 +117,6 @@ async def upload_project_file(request):
         f.write(file_data)
 
     mime_type = magic.from_file(file_path, mime=True)
-    md5 = readable_hash = hashlib.md5(file_data).hexdigest()
 
     # add file to project file
     project_file = {
@@ -114,10 +125,6 @@ async def upload_project_file(request):
         "mime_type": mime_type,
         "md5": md5,
     }
-
-    project_files = []
-    if "media" in project:
-        project_files = project["media"]
 
     project_files.append(project_file)
 
