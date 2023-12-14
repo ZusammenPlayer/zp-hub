@@ -3,4 +3,5 @@ config.py
 db.json
 
 /data
+/log
 /logs

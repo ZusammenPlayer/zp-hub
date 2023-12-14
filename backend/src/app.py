@@ -36,6 +36,8 @@ def init_app():
     project_handler.setup(app)
     device_handler.setup(app)
     web_handler.setup(app)
+
+    logging.info("ZusammenPlayer HUB started")
     return app
 
 
