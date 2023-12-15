@@ -35,7 +35,6 @@ class SocketIOManager:
             if data["type"] == "player":
                 new_device = {"sid": sid}
                 new_device["uid"] = data["uid"]
-                new_device["name"] = data["name"]
                 new_device["type"] = data["type"]
                 self.connected_devices.append(new_device)
                 await sio.enter_room(sid, self.ROOM_DEVICES)
