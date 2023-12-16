@@ -2,6 +2,7 @@ from aiohttp import web
 from handler import project_handler, web_handler, device_handler, interaction_handler
 from middlewares import database_middleware, socketio_middleware
 from socketio_manager import SocketIOManager
+from database import Database
 import config
 import logging
 import logging.handlers
@@ -25,10 +26,13 @@ def init_app():
     # create web application
     app = web.Application()
 
-    # init socketio
-    sio_mngr = SocketIOManager(app)
+    database = Database(config.zp_data_path)
+    database.init()
 
-    app.middlewares.append(database_middleware())
+    # init socketio
+    sio_mngr = SocketIOManager(app, database)
+
+    app.middlewares.append(database_middleware(database))
     app.middlewares.append(socketio_middleware(sio_mngr))
 
     # setup api handler

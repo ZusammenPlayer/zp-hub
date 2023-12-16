@@ -67,7 +67,7 @@ class Database:
         # check if database file exists otherwise create one
         if not os.path.exists(self.__db_file_path):
             with open(self.__db_file_path, "w") as outfile:
-                self.__DB = {"version": 1, "projects": []}
+                self.__DB = {"version": 1, "projects": [], "devices": []}
                 outfile.write(json.dumps(self.__DB))
                 logging.info("zp-database file created")
 
@@ -80,10 +80,16 @@ class Database:
             raise DatabaseException(
                 2, "projects path is a file but should be a directory"
             )
-
-        # load projects
+        
+        # load database
         with open(self.__db_file_path) as db:
             self.__DB = json.load(db)
+            if "devices" not in self.__DB:
+                self.__DB["devices"] = []
+                self.__save_database()
+            if "projects" not in self.__DB:
+                self.__DB["projects"] = []
+                self.__save_database()
 
     def create_new_project(self, data):
         """
@@ -171,6 +177,20 @@ class Database:
         with open(file_name, "w") as f:
             f.write(out)
         return project
+    
+    def get_devices(self):
+        return self.__DB["devices"]
+
+    def add_or_update_device(self, device):
+        devices = self.__DB["devices"] = [d for d in self.__DB["devices"] if d["uid"] != device["uid"]]
+        devices.append(device)
+        self.__DB["devices"] = devices
+        self.__save_database()
+
+    def remove_device(self, device_id):
+        self.__DB["devices"] = [d for d in self.__DB["devices"] if d["uid"] == id]
+        self.__save_database()
+        pass
 
     def __save_database(self):
         with open(self.__db_file_path, "w") as outfile:

@@ -22,8 +22,13 @@
   <h4>connected devices</h4>
 
   <div each={ device in state.devices } class="device-row">
-    <div class="zp-device">
-      
+    <div if={device.online} class="zp-device" style="background-color: lightgreen; color: black">      
+      <div class="zp-device-header"><b>{ device.name }</b></div>
+      <div class="zp-device-info">  <small>&nbsp;id: {device.uid}</small>
+        <br/><small>&nbsp;type: { device.type }</small>
+      </div>
+    </div>
+    <div if={device.online === false} class="zp-device">      
       <div class="zp-device-header"><b>{ device.name }</b></div>
       <div class="zp-device-info">  <small>&nbsp;id: {device.uid}</small>
         <br/><small>&nbsp;type: { device.type }</small>
