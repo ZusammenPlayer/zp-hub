@@ -40,7 +40,10 @@ class SocketIOManager:
             index = -1
             for i, device in enumerate(self.connected_devices):
                 if device["sid"] == sid:
+                    device["status"] = "disconnected"
+                    self.database.add_or_update_device(device)
                     index = i
+
             if index != -1:
                 del self.connected_devices[index]
             logging.info(sid + " disconnected")
@@ -56,6 +59,10 @@ class SocketIOManager:
                 new_device = {"sid": sid}
                 new_device["uid"] = data["uid"]
                 new_device["type"] = data["type"]
+                if "status" in data:
+                    new_device["status"] = data["status"]
+                else:
+                    new_device["status"] = "?"
                 self.database.add_or_update_device(new_device)
                 self.connected_devices.append(new_device)
                 await sio.enter_room(sid, self.ROOM_DEVICES)
@@ -64,7 +71,21 @@ class SocketIOManager:
                 await sio.enter_room(sid, self.ROOM_WEB)
                 logging.info("web ui connected: " + sid)
             
-            all_devices = self.__merge_devices()
+            devices = self.__merge_devices()
             await sio.emit(
-                "device-list", json.dumps(all_devices), room=self.ROOM_WEB
+                "device-list", json.dumps(devices), room=self.ROOM_WEB
+            )
+        
+        @sio.on("device_status")
+        async def device_status(sid, data):
+            new_list = []
+            for d in self.connected_devices:
+                if d["sid"] == sid:
+                    d["status"] = data["status"]
+                    self.database.add_or_update_device(d)
+                new_list.append(d)
+            self.connected_devices = new_list
+            devices = self.__merge_devices()
+            await sio.emit(
+                "device-list", json.dumps(devices), room=self.ROOM_WEB
             )
