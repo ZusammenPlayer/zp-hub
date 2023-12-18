@@ -23,11 +23,11 @@
 
   <div each={ device in state.devices } class="device-row">
     <div if={device.online} class="zp-device" style="background-color: lightgreen; color: black">      
-      <div class="zp-device-header"><b>{ device.name }</b></div>
+      <div class="zp-device-header"><b>FOO { device.name }</b></div>
       <div class="zp-device-info">  <small>&nbsp;id: {device.uid}</small>
-        <br/><small>&nbsp;type: { device.type }</small>
+        <br/><small>&nbsp;FOO type: { device.type }</small>
       </div>
-      <div class="zp-device-info">  <small>&nbsp;status: {device.status}</small></div>
+      <div class="zp-device-info">  <small>&nbsp;status DKJFLS: {device.status}</small></div>
     </div>
     <div if={device.online === false} class="zp-device">      
       <div class="zp-device-header"><b>{ device.name }</b></div>
@@ -65,7 +65,9 @@
         });
 
         socket.on('device-list', (data) => {
+          console.log('event: device-list');
           const json = JSON.parse(data);
+          console.log(data);
           this.update({devices: json});
         })
       },
