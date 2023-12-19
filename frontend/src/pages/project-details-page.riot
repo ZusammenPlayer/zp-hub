@@ -1,9 +1,9 @@
 <project-details>
     <p if={ state.load_error } class="error">{ this.state.load_error }</p>
     <div if={this.state.currentProject !== null}>   
-        <h1 if={props.ap.currentProjectAction !== 'cuelists' && props.ap.currentProjectAction !== 'scenes' && props.ap.currentProjectAction !== 'mapping' && props.ap.currentProjectAction !== 'media'}><b>{state.title}</b>: Project Details</h1>     
-        <div is="cue-list" data-riot-component if={props.ap.currentProjectAction === 'cuelists'} project={state.currentProject} projectId={state.currentProject.id} cuelist={state.currentProject.cuelists[0]}></div>
-        <div is="scene-list" data-riot-component if={props.ap.currentProjectAction === 'scenes'} project={state.currentProject}></div>
+        <h1 if={props.ap.currentProjectAction !== 'cuelists' && props.ap.currentProjectAction !== 'scenes' && props.ap.currentProjectAction !== 'mapping' && props.ap.currentProjectAction !== 'media'}><b>{this.state.title}</b>: Project Details</h1>     
+        <div is="cue-list" data-riot-component if={props.ap.currentProjectAction === 'cuelists'} project={this.state.currentProject} projectId={this.state.currentProject.id} cuelist={this.state.currentProject.cuelists[this.state.currentProject.currentCueListIndex]}></div>
+        <div is="scene-list" data-riot-component if={props.ap.currentProjectAction === 'scenes'} project={this.state.currentProject}></div>
         <div is="device-mappings" data-riot-component if={props.ap.currentProjectAction === 'mapping'} project={this.state.currentProject}></div>
         <div is="media-library" data-riot-component if={props.ap.currentProjectAction === 'media'} project={this.state.currentProject}></div>
     </div>
@@ -54,7 +54,7 @@
                     }
                     if(data != {}){
                         if(typeof(currentCueListIndex) == 'undefined'){
-                            data.currentCueListIndex = 0;
+                            data.currentCueListIndex = 1;
                         }
                         this.update({ title: data.name, currentProject: data });
                         console.log("project: " + this.state.currentProject.name);
@@ -76,7 +76,7 @@
                 if(localStorageData != null && localStorageData != []){
                     if(localStorageData.slug == _slug){
                         if(typeof(localStorageData.currentCueListIndex) == 'undefined'){
-                            localStorageData.currentCueListIndex = 0;
+                            localStorageData.currentCueListIndex = 1;
                         }
                         riot.eventBus.trigger('activeProject', localStorageData); 
                         this.update({ title: localStorageData.name, currentProject: localStorageData });

@@ -12,7 +12,7 @@
     </style>
 
     <h1><b>{props.project.name}</b>: cue list</h1>
-    <p>name: {props.cuelist.name}</p>
+    <p>name: {typeof(props.cuelist) != 'undefined' ? props.cuelist.name : props.project.cuelists[0].name}</p>
     <div>
         <div>
             <button onclick={triggerPause}>pause all</button>
