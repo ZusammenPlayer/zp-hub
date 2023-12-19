@@ -66,10 +66,7 @@ class SocketIOManager:
                 self.database.add_or_update_device(new_device)
                 self.connected_devices.append(new_device)
                 await sio.enter_room(sid, self.ROOM_DEVICES)
-                logging.info("-------")
-                logging.info("device connected: " + sid)
-                logging.info(str(new_device))
-                logging.info("-------")
+                logging.info("device connected: " + str(new_device))
             if data["type"] == "web":
                 await sio.enter_room(sid, self.ROOM_WEB)
                 logging.info("web ui connected: " + sid)
