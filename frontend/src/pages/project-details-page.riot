@@ -53,8 +53,38 @@
                         this.update({ load_error: 'Error loading projects! JSON Error: ' + err});
                     }
                     if(data != {}){
-                        if(typeof(currentCueListIndex) == 'undefined'){
-                            data.currentCueListIndex = 1;
+                        if(typeof(data.currentCueListIndex) == 'undefined'){
+                            data.currentCueListIndex = 0;
+                        }
+                        if(typeof(data.scenes[0]) == 'undefined'){
+                            data.scenes[0] = {
+                                "id": "sceneid1",
+                                "name": "black",
+                                "instructions": "bg color #000000"
+                            }; 
+                        }
+                        if(typeof(data.virtual_devices[0]) == 'undefined'){
+                            data.virtual_devices[0] = {
+                                "id": "vdid1",
+                                "name": "V Device 1",
+                                "device_ids": ['fake']
+                            }; 
+                        }
+                        if(typeof(data.cuelists[data.currentCueListIndex]) == 'undefined'){
+                            data.cuelists[data.currentCueListIndex] = {
+                                "id": "cuelist0", 
+                                "name": "Default Cuelist", 
+                                "cues": [{
+                                            "id": "cueid1",
+                                            "label": "Default Cue",
+                                            "mappings": [
+                                                {
+                                                "virtual_device_id": "vdid1",
+                                                "scene_id": "sceneid1"
+                                                }
+                                            ]
+                                        }]
+                            };
                         }
                         this.update({ title: data.name, currentProject: data });
                         console.log("project: " + this.state.currentProject.name);
@@ -76,7 +106,7 @@
                 if(localStorageData != null && localStorageData != []){
                     if(localStorageData.slug == _slug){
                         if(typeof(localStorageData.currentCueListIndex) == 'undefined'){
-                            localStorageData.currentCueListIndex = 1;
+                            localStorageData.currentCueListIndex = 0;
                         }
                         riot.eventBus.trigger('activeProject', localStorageData); 
                         this.update({ title: localStorageData.name, currentProject: localStorageData });

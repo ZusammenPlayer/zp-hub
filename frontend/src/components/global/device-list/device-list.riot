@@ -15,7 +15,7 @@
       font-size: small;
     }
     .device-wrapper {
-      margin-bottom: 0.2em;
+      margin-bottom: 0.5em;
     }
     .device-row {
       height: 80vh;
@@ -24,23 +24,19 @@
     .zp-device-info {
       padding: 0 1em;
     }
+    .active {
+      background-color: lightgreen; color: black
+    }
   </style>
 
   <h4><b>Known Devices</b></h4>
 
   <div class="device-row"> 
     <div each={ device in state.devices } class="device-wrapper">
-      <div if={device.online} class="zp-device" style="background-color: lightgreen; color: black">      
-        <div class="zp-device-header"><b>FOO { device.name }</b></div>
-        <div class="zp-device-info">  <small>&nbsp;id: {device.uid}</small>
-          <br/><small>&nbsp;FOO type: { device.type }</small>
-        </div>
-        <div class="zp-device-info">  <small>&nbsp;status DKJFLS: {device.status}</small></div>
-      </div>
-      <div if={device.online === false} class="zp-device">      
-        <div class="zp-device-header"><b>{ device.name }</b></div>
-        <div class="zp-device-info">  <small>&nbsp;id: {device.uid}</small>
-          <br/><small>&nbsp;type: { device.type }</small>
+      <div  class="zp-device {device.online  !== false ? 'active' : ''}">      
+        <div class="zp-device-header"><b>{ device.uid }</b></div>
+       <div class="zp-device-info">   <!-- <small>&nbsp;id: {device.uid}</small> <br/>-->
+          <small>&nbsp;type: { device.type }</small>
         </div>
         <div class="zp-device-info">  <small>&nbsp;status: {device.status}</small></div>
       </div>
