@@ -122,6 +122,10 @@ class Database:
                 "name": data["name"],
                 "slug": slug,
                 "file_name": file_name,
+                "scenes": [],
+                "virtual_devices": [],
+                "cuelists": [],
+                "media": []
             }
 
             # save project meta data to db

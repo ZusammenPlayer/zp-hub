@@ -52,7 +52,7 @@ async def get_project(request):
 
 
 async def create_project(request):
-    database = request["db"]
+    database: Database = request["db"]
     request_data = await request.json()
     try:
         new_project = database.create_new_project(request_data)
