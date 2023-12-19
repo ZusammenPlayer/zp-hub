@@ -1,0 +1,15 @@
+[Unit]
+Description=ZusammenPlayer Hub - python backend
+After=network-online.target multi-user.target
+Wants=network-online.target
+
+[Service]
+Type=idle
+User=pi
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/bin/python /opt/zp-hub/backend/src/app.py
+KillMode=process
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
