@@ -7,7 +7,7 @@ Wants=network-online.target
 Type=idle
 User=pi
 ExecStartPre=/bin/sleep 10
-ExecStart=/usr/bin/python /opt/zp-hub/backend/src/app.py
+ExecStart=/usr/bin/python /opt/zp-hub/backend/latest/src/app.py
 KillMode=process
 Restart=always
 
