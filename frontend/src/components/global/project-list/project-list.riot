@@ -18,7 +18,8 @@
             <a href='project/{ project.slug }'>{ project.name }</a>
         </div>
     </div>
-
+    <input type="text" name="name" id="newProjectName">
+    <button class="button-outline" onclick={(e) => createNewProject(e, document.getElementById('newProjectName').value) }>  create new project  </button>
     <script>
         export default {
             state: {
@@ -37,8 +38,35 @@
                     this.update({ load_error: 'Error loading projects! status code: ' + res.status});
                 }
             },
+            async createNewProject(e, _name) {
+                e.preventDefault();
+                let payload = {name: _name};
+                fetch(`/api/project/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json, text/plain, */*'},
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Handle the successful response
+                        console.log('Form data uploaded successfully!');
+                        this.getProjects();
+                        this.update({ projects: data });
+                    } else {
+                        // Handle the error response
+                        this.update({ load_error: 'Error creating project! status code: ' + response.statusText});
+                        console.error('Error uploading form data:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    // Handle any network or other errors
+                    console.error('Error uploading form data:', error);
+                })
+            },
             async onBeforeMount(props, state) {
                 await this.getProjects();
+
+
             },
         }
     </script>

@@ -25,7 +25,7 @@
         <div class="row cue-container" each={ (cue, cue_index) in props.cuelist.cues }>
             <div class="column column-30">
                 <input type="text" name="cue_label_{cue_index}" id="cue_label_{cue_index}" size="30" maxlength="50" value="{ cue.label}">
-                <button class="button-outline" onclick={() => change_cue_label(cue_index, document.getElementById('cue_label_'+cue_index).value)}>  change name  </button>
+                <button class="button-outline" onclick={(e) => change_cue_label(e, cue_index, document.getElementById('cue_label_'+cue_index).value)}>  change name  </button>
                 <div if="{typeof this.state.change_label_messages[cue_index] !== 'undefined' && this.state.change_label_messages[cue_index] != ''}">{this.state.change_label_messages[cue_index]}</div>
             </div>
             <div class="column column-50">
@@ -39,7 +39,7 @@
                             <option value=""> do nothing </option>
                             <option each={scene in props.project.scenes} value="{scene.id}" selected="{scene.id == mapping.scene_id}"> {scene.name} </option>
                         </select>
-                        <button class="button-outline" onclick={() => change_single_mapping(document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value, document.getElementById('mapping_scene_' + cue_index + '_' + mapping_index).value, mapping_index, cue_index)}>  apply  </button>
+                        <button class="button-outline" onclick={(e) => change_single_mapping(e, document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value, document.getElementById('mapping_scene_' + cue_index + '_' + mapping_index).value, mapping_index, cue_index)}>  apply  </button>
                         <div if="{typeof this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] !== 'undefined' && this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] != ''}">{this.state.change_single_mapping_messages[cue_index + '_' + mapping_index]}</div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                             <option value=""> ... </option>
                             <option each={scene in props.project.scenes} value="{scene.id}"> {scene.name} </option>
                         </select>
-                        <button class="button-outline" onclick={() => add_mapping(document.getElementById('mapping_vdid_' + cue_index + '_new').value, document.getElementById('mapping_scene_' + cue_index + '_new').value, cue_index)}>  add  </button>
+                        <button class="button-outline" onclick={(e) => add_mapping(e, document.getElementById('mapping_vdid_' + cue_index + '_new').value, document.getElementById('mapping_scene_' + cue_index + '_new').value, cue_index)}>  add  </button>
                     </div>
                     <div if="{typeof this.state.change_single_mapping_messages[cue_index + '_new'] !== 'undefined' && this.state.change_single_mapping_messages[cue_index + '_new'] != ''}">{this.state.change_single_mapping_messages[cue_index + '_new']}</div>
                 </div>
@@ -66,7 +66,7 @@
         <div class="row cue-container">
             <div class="column column-30">
                 Add Cue: <input type="text" name="cue_label_new" id="cue_label_new" size="30" maxlength="50" value="" style="max-width: 30%; margin-right: 1%;">
-                <button class="button-outline" onclick={() => add_cue(document.getElementById('cue_label_new').value)}>  add  </button>
+                <button class="button-outline" onclick={(e) => add_cue(e, document.getElementById('cue_label_new').value)}>  add  </button>
                 <div if="{typeof this.state.change_label_messages['new'] !== 'undefined' && this.state.change_label_messages['new'] != ''}">{this.state.change_label_messages['new']}</div>
             </div>
         </div>
@@ -125,7 +125,8 @@
                 }
             },
             //mappings
-            change_single_mapping(vdid, scene_id, mapping_index, cue_index){
+            change_single_mapping(e, vdid, scene_id, mapping_index, cue_index){
+                e.preventDefault();
                 this.clear_messages();
                 if(vdid == ""){
                     //delete mapping
@@ -151,7 +152,8 @@
                 }
                 
             },
-            add_mapping(vdid, scene_id, cue_index){
+            add_mapping(e, vdid, scene_id, cue_index){
+                e.preventDefault();
                 this.clear_messages();
                 if(vdid != ""){
                     //check if player has already another mapping
@@ -179,7 +181,8 @@
                 
             },
             //cues
-            change_cue_label(cue_index,label){
+            change_cue_label(e, cue_index,label){
+                e.preventDefault();
                 this.clear_messages();
                 if(label != ""){
                     //check if another cue has the same label
@@ -204,8 +207,8 @@
                     this.update();
                 }
             },
-            add_cue(label){
-                
+            add_cue(e, label){
+                e.preventDefault();
                 this.clear_messages();
                 if(label != ""){
                     //check if another cue has the same label

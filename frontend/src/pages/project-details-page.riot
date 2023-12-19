@@ -24,7 +24,7 @@
                 try {
                     parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
                 } catch (e) {
-                    console.log('LS JSON parsing failed.')
+                    console.log('LS JSON parsing failed.' + e)
                     //this.update({ title: [], load_error: e });
                     return [];
                 }
@@ -42,61 +42,111 @@
                 load_error: null,
                 currentProject: null
             },
+            async getProjectFromHub(_slug){
+                const res = await fetch('/api/project?slug=' + _slug);
+                if (res.status === 200) {
+                    let data = {};
+                    try{
+                        data = await res.json();
+                    }
+                    catch(err){
+                        this.update({ load_error: 'Error loading projects! JSON Error: ' + err});
+                    }
+                    if(data != {}){
+                        if(typeof(currentCueListIndex) == 'undefined'){
+                            data.currentCueListIndex = 0;
+                        }
+                        this.update({ title: data.name, currentProject: data });
+                        console.log("project: " + this.state.currentProject.name);
+                        projectStorage.save(data);
+                        riot.eventBus.trigger('activeProject', data); 
+                    }
+                } else if (res.status === 400) {
+                    const error = await res.json();
+                    this.update({ title: [], load_error: error.message });
+                } else {
+                    console.log("else")
+                    this.update({ load_error: 'Error loading projects! status code: ' + res.status});
+                }
+            },
             async getProject(_slug) {
-                let getFromDisk = 0;
-                const localStorageData = await projectStorage.fetch();
-                if(localStorageData != []){
+                let getFromHub = 0;
+                let localStorageData = await projectStorage.fetch();
+                
+                if(localStorageData != null && localStorageData != []){
                     if(localStorageData.slug == _slug){
+                        if(typeof(localStorageData.currentCueListIndex) == 'undefined'){
+                            localStorageData.currentCueListIndex = 0;
+                        }
                         riot.eventBus.trigger('activeProject', localStorageData); 
                         this.update({ title: localStorageData.name, currentProject: localStorageData });
                        console.log("ls project: " + this.state.currentProject.name);
                     } else {
-                        getFromDisk = 1;
+                        getFromHub = 1;
                     }
                 } else {
-                    getFromDisk = 1;
+                    getFromHub = 1;
                 }
 
-                if(getFromDisk != 0){
-                    const res = await fetch('/api/project?slug=' + _slug);
-                    if (res.status === 200) {
-                        const data = await res.json();
-                        riot.eventBus.trigger('activeProject', data); 
-                        projectStorage.save(data);
-                        this.update({ title: data.name, currentProject: data });
-                        console.log("project: " + this.state.currentProject.name);
-                    } else if (res.status === 400) {
-                        const error = await res.json();
-                        this.update({ title: [], load_error: error.message });
-                    } else {
-                        console.log("else")
-                        this.update({ load_error: 'Error loading projects! status code: ' + res.status});
-                    }
+                if(getFromHub != 0){
+                    this.getProjectFromHub(_slug);
                 }
                 
             },
+            async saveProject() {
+                const res = await fetch('/api/project/' + this.state.currentProject.id);
+                let payload = {scenes: this.state.currentProject.scenes};
+                fetch('/api/project/' + this.state.currentProject.id, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json, text/plain, */*'},
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Handle the successful response
+                        console.log('Form data uploaded successfully!');
+                        this.getProject(this.state.currentProject.slug);
+                    } else {
+                        // Handle the error response
+                        this.update({ load_error: 'Error creating project! status code: ' + response.statusText});
+                        console.error('Error uploading form data:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    // Handle any network or other errors
+                    console.error('Error uploading form data:', error);
+                })
+            },
             async onBeforeMount(props, state) {
+                state.activePage = props.ap;
                 await this.getProject(props.params.slug)
             },
-            onMounted() {
+            onMounted(props, state) {
                 const activePageUpdate = (input) => {
                     const activePage = input
                     this.update({
                         activePage
                     })
-                    if(typeof this.state.activePage.currentProjectAction !== "undefined"){
-                        console.log('current Action: ' + this.state.activePage.currentProjectAction)
+                    if(typeof state.activePage.currentProjectAction !== "undefined"){
+                        console.log('current Action: ' + state.activePage.currentProjectAction)
                     }
                 }
 
-                const dataChanged = (input) => {
-                    const inputData = input;
+                const dataChanged = () => {
                     projectStorage.save(this.state.currentProject);
-                    this.update()
+                    this.update();
                 }
 
                 const getProject = (_slug) => {
-                    this.getProject(_slug)
+                    this.getProject(_slug);
+                }
+
+                const getProjectFromHub = (_slug) => {
+                    this.getProjectFromHub(_slug);
+                }
+
+                const saveProject = () => {
+                    this.saveProject();
                 }
                 
                 riot.eventBus.on('activePage', function(_activePage) {  
@@ -104,13 +154,18 @@
                     if(typeof _activePage.currentProjectSlug !== 'undefined'){
                        getProject(_activePage.currentProjectSlug);
                     }   
-                    
-
                 })
 
-                riot.eventBus.on('data_changed',function(input) {     
-                    
+                riot.eventBus.on('data_changed',function() {     
                     dataChanged();
+                });
+
+                riot.eventBus.on('revert_project',function() {  
+                    getProjectFromHub(props.params.slug);
+                });
+
+                riot.eventBus.on('save_project',function() {     
+                    saveProject();
                 });
             }
             

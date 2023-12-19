@@ -12,7 +12,7 @@
         }
     </style>
 
-    <h1><b>{props.project.name}</b>: Scenes</h1>
+    <h1><b>{props.project.name}</b>: Scenes </h1>
 
     <div>
         <div class="row scene-container">
@@ -22,16 +22,16 @@
         <div class="row scene-container" each={(scene, index) in props.project.scenes}>
             <div class="column column-25">
                 <input type="text" name="scene_name_{index}" id="scene_name_{index}" size="30" maxlength="50" value="{ scene.name}">
-                <button class="button-outline" onclick={() => edit_scene_name(index, document.getElementById('scene_name_'+index).value)}>  change name  </button>
+                <button class="button-outline" onclick={(e) => edit_scene_name(e, index, document.getElementById('scene_name_'+index).value)}>  change name  </button>
             </div> 
             <div class="column column-75">
                 <textarea class="code" rows="1" id="instruction_{index}" value="{scene.instructions}"></textarea>
-                <button class="button-outline" onclick={() => edit_scene_instruction(index, document.getElementById('instruction_'+index).value)}>  change instruction  </button> 
+                <button class="button-outline" onclick={(e) => edit_scene_instruction(e, index, document.getElementById('instruction_'+index).value)}>  change instruction  </button> 
             </div>
         </div>
         <div class="row scene-container" >
             <div class="column column-25"><input type="text" name="new_scene_name" id="new_scene_name" size="30" maxlength="50"></div>
-            <div class="column column-75"><button class="button-outline" onclick={() => add_scene(document.getElementById('new_scene_name').value)}>  add  scene</button> 
+            <div class="column column-75"><button class="button-outline" onclick={(e) => add_scene(e, document.getElementById('new_scene_name').value)}>  add  scene</button> 
                 <div if="{this.state.add_scene_message.text !== ''}">{this.state.add_scene_message.text}</div>
             </div>
         </div>
@@ -49,7 +49,8 @@
             async onBeforeMount(props, state) {
                 state.add_scene_message.text = "";
             },
-            add_scene(new_scene_name){
+            add_scene(e, new_scene_name){
+                e.preventDefault();
                 if(new_scene_name != ''){
                     let uuid = self.crypto.randomUUID();
                     let new_scene = {
@@ -68,7 +69,8 @@
                 }
                 
             },
-            edit_scene_name(scene_index, scene_name){
+            edit_scene_name(e, scene_index, scene_name){
+                e.preventDefault();
                 if(scene_name != ""){
                     this.props.project.scenes[scene_index].name = scene_name;
                     riot.eventBus.trigger('data_changed', {}); 
@@ -79,7 +81,8 @@
                 }
                 
             },
-            edit_scene_instruction(scene_index, instruction){
+            edit_scene_instruction(e, scene_index, instruction){
+                e.preventDefault();
                 this.props.project.scenes[scene_index].instructions = instruction;
                 riot.eventBus.trigger('data_changed', {}); 
                 this.clear_messages();
@@ -88,6 +91,14 @@
             clear_messages(){
                 this.state.add_scene_message.text = "";
                 this.update();
+            },
+            revert_project(e){
+                e.preventDefault();
+                riot.eventBus.trigger('revert_project'); 
+            },
+            save_project(e){
+                e.preventDefault();
+                riot.eventBus.trigger('save_project'); 
             }
         }
     </script>

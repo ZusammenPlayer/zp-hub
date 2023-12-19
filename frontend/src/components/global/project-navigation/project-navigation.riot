@@ -1,4 +1,14 @@
+
 <project-navigation>
+    <style>
+    
+        button {
+            float: right;
+            vertical-align: middle;
+            margin: 1em 0 1em 5px;
+        }
+        
+    </style>
     <div class="row">
         <nav class="navigation menu">
             <section class="container">
@@ -10,6 +20,7 @@
                     href={props.ap.currentProjectPath}{page.path}>
                     {page.label}
                 </a>
+                <button class="button h1-button" onclick={(e) => save_project(e, props.ap.id)}>  save </button><button class="button-outline h1-button" onclick={(e) => revert_project(e, props.ap.slug)}>  revert</button>
             </section>
         </nav>
     </div>
@@ -27,7 +38,7 @@
             activePage: null
         },
         onBeforeMount(){
-            
+            this.state.activePage = this.props.ap;
         },
         onMounted() {
             const activePageUpdate = (input) => {
@@ -54,15 +65,14 @@
                 activeProjectUpdate(input)
             })
             
-            
-            // const getProps = () => {
-            //     return this.props
-            // }
-            // setTimeout(function(){
-                
-            //     let _props = getProps()
-            //     titleUpdate(_props.ap.currentProjectSlug)
-            // },5000)
+        },
+        revert_project(e){
+            e.preventDefault();
+            riot.eventBus.trigger('revert_project'); 
+        },
+        save_project(e){
+            e.preventDefault();
+            riot.eventBus.trigger('save_project'); 
         }
         
         
