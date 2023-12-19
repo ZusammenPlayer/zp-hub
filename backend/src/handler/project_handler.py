@@ -15,6 +15,7 @@ def setup(app: web.Application):
     app.router.add_get("/api/project", get_project)
     app.router.add_post("/api/project", create_project)
     app.router.add_post("/api/project/file", upload_project_file)
+    app.router.add_post("/api/project/{project_id}/sync", sync_files)
     app.router.add_put("/api/project/{project_id}", update_project)
     app.router.add_get("/api/project/{project_id}/{filename}", get_project_file)
 
@@ -29,6 +30,19 @@ async def trigger_file_sync(project, sio_mngr: SocketIOManager):
             files = data_utils.files_for_device(project, device_id)
             data = {"project_id": project["id"], "device_id": device_id, "media": files}
             await sio_mngr.sio.emit(event="file_sync", data=data, to=device["sid"])
+
+
+async def sync_files(request):
+    sio_mngr: SocketIOManager = request["sio_mngr"]
+    database = request["db"]
+    id = request.match_info["project_id"]
+    request_data = await request.json()
+    project = database.get_project(id)
+    if project is not None:
+        trigger_file_sync(project, sio_mngr)
+        return web.HTTPOk()
+    else:
+        return web.HTTPNotFound()
 
 
 async def get_all_projects(request):
@@ -74,6 +88,8 @@ async def update_project(request):
             project["scenes"] = request_data["scenes"]
         if "cuelists" in request_data:
             project["cuelists"] = request_data["cuelists"]
+        if "virtual_devices" in request_data:
+            project["virtual_devices"] = request_data["virtual_devices"]
         database.save_project(project)
         await trigger_file_sync(project, sio_mngr)
         return web.json_response(project)
@@ -161,11 +177,11 @@ async def get_project_file(request):
     if project is None:
         error = {"code": 44, "message": "project not found"}
         return web.HTTPBadRequest(text=json.dumps(error))
-    
+
     for file in project["media"]:
         if file["filename"] == filename:
             with open(file["file_path"], mode="rb") as f:
                 data = f.read()
                 return web.Response(body=data, content_type=file["mime_type"])
-    
+
     return web.HTTPNotFound()
