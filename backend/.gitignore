@@ -2,6 +2,7 @@ projects
 config.py
 db.json
 
+/releases
 /data
 /log
 /logs
