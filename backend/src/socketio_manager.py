@@ -12,7 +12,7 @@ class SocketIOManager:
 
     connected_devices = []
 
-    def __merge_devices(self):
+    def merge_devices(self):
         # merge known devices with connected devices
         all_devices = []
         for known_device in self.database.get_devices():
@@ -47,7 +47,7 @@ class SocketIOManager:
             if index != -1:
                 del self.connected_devices[index]
             logging.info(sid + " disconnected")
-            all_devices = self.__merge_devices()
+            all_devices = self.merge_devices()
             await sio.emit(
                 "device-list", json.dumps(all_devices), room=self.ROOM_WEB
             )
@@ -74,7 +74,7 @@ class SocketIOManager:
                 await sio.enter_room(sid, self.ROOM_WEB)
                 logging.info("web ui connected: " + sid)
             
-            devices = self.__merge_devices()
+            devices = self.merge_devices()
             await sio.emit(
                 "device-list", json.dumps(devices), room=self.ROOM_WEB
             )
@@ -88,7 +88,7 @@ class SocketIOManager:
                     self.database.add_or_update_device(d)
                 new_list.append(d)
             self.connected_devices = new_list
-            devices = self.__merge_devices()
+            devices = self.merge_devices()
             await sio.emit(
                 "device-list", json.dumps(devices), room=self.ROOM_WEB
             )

@@ -6,6 +6,7 @@ import json
 import config
 from database import DatabaseException
 from socketio_manager import SocketIOManager
+from database import Database
 import data_utils
 
 
@@ -15,6 +16,7 @@ def setup(app: web.Application):
     app.router.add_post("/api/project", create_project)
     app.router.add_post("/api/project/file", upload_project_file)
     app.router.add_put("/api/project/{project_id}", update_project)
+    app.router.add_get("/api/project/{project_id}/{filename}", get_project_file)
 
 
 async def trigger_file_sync(project, sio_mngr: SocketIOManager):
@@ -25,7 +27,7 @@ async def trigger_file_sync(project, sio_mngr: SocketIOManager):
         )
         if device is not None:
             files = data_utils.files_for_device(project, device_id)
-            data = {"project": project, "device_id": device_id, "media": files}
+            data = {"project_id": project["id"], "device_id": device_id, "media": files}
             await sio_mngr.sio.emit(event="file_sync", data=data, to=device["sid"])
 
 
@@ -35,7 +37,7 @@ async def get_all_projects(request):
 
 
 async def get_project(request):
-    database = request["db"]
+    database: Database = request["db"]
     q = request.query
     project = None
     if "id" in q:
@@ -148,3 +150,22 @@ async def upload_project_file(request):
     database.save_project(project)
 
     return web.json_response(project_file)
+
+
+async def get_project_file(request):
+    database: Database = request["db"]
+    project_id = request.match_info["project_id"]
+    filename = request.match_info["filename"]
+
+    project = database.get_project(project_id)
+    if project is None:
+        error = {"code": 44, "message": "project not found"}
+        return web.HTTPBadRequest(text=json.dumps(error))
+    
+    for file in project["media"]:
+        if file["filename"] == filename:
+            with open(file["file_path"], mode="rb") as f:
+                data = f.read()
+                return web.Response(body=data, content_type=file["mime_type"])
+    
+    return web.HTTPNotFound()

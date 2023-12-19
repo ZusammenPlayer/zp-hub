@@ -8,4 +8,6 @@ def setup(app: web.Application):
 
 async def get_all_devices(request):
     sio_mngr: SocketIOManager = request["sio_mngr"]
-    return web.json_response(sio_mngr.connected_devices)
+
+    devices = sio_mngr.merge_devices()
+    return web.json_response(devices)
