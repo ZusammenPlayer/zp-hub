@@ -17,7 +17,7 @@
         <div class="row zp-container">
             <div class="column column-50"><b>Virtual Device Name</b></div>
             <div class="column column-50">
-                <b>Associated Real Device IDs</b>
+                <b>Associated Real Devices</b>
             </div>
         </div>
         <div class="row zp-container" each={(virtual_device, index) in props.project.virtual_devices}>
@@ -67,7 +67,7 @@
                 if(real_device_id != ""){
                     if(this.props.project.virtual_devices[virtual_device_index].device_ids.indexOf(real_device_id) === -1){
                         this.props.project.virtual_devices[virtual_device_index].device_ids.push(real_device_id);
-                        riot.eventBus.trigger('data_changed', {}); 
+                        riot.eventBus.trigger('data_changed'); 
                         this.clear_messages();
                     } else {
                         this.state.add_real_device_messages[virtual_device_index] = {};
@@ -80,7 +80,7 @@
                 e.preventDefault();
                 if(virtual_device_name != ""){
                     this.props.project.virtual_devices[virtual_device_index].name = virtual_device_name;
-                    riot.eventBus.trigger('data_changed', {}); 
+                    riot.eventBus.trigger('data_changed'); 
                     this.clear_messages();
                     this.update();
                 } else {
@@ -106,7 +106,7 @@
                             id: uuid
                         };
                         this.props.project.virtual_devices.push(new_virtual_device);
-                        riot.eventBus.trigger('data_changed', {}); 
+                        riot.eventBus.trigger('data_changed'); 
                         document.getElementById('new_virtual_device_name').value = "";
                         this.clear_messages();
                     } else {

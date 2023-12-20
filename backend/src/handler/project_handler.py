@@ -90,6 +90,12 @@ async def update_project(request):
             project["cuelists"] = request_data["cuelists"]
         if "virtual_devices" in request_data:
             project["virtual_devices"] = request_data["virtual_devices"]
+        if "meta" in request_data:
+            if "name" in request_data["meta"]:
+                project["name"] = request_data["meta"]["name"]
+            if "currentCuelistIndex" in request_data["meta"]:
+                project["currentCuelistIndex"] = request_data["meta"]["currentCuelistIndex"]
+
         database.save_project(project)
         await trigger_file_sync(project, sio_mngr)
         return web.json_response(project)

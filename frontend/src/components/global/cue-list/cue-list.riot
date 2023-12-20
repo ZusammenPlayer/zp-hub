@@ -6,17 +6,29 @@
             width: "100%";
             background-color: #ddd;
         }
+        .select {
+            max-width: 50%;
+        }
         .mapping {
             max-width: 40%;
         }
     </style>
 
     <h1><b>{props.project.name}</b>: cue list</h1>
-    <select if="{props.project.cuelists.length > 1}" class="mapping" name="sel_cuelist" id="sel_cuelist">
-        <option each={ (cuelist, cuelist_index) in props.project.cuelists } id="cuelist{cuelist_index}" value="{cuelist_index}" selected="{props.project.currentCueListIndex == cuelist_index}">{props.project.cuelists[cuelist_index].name}</option>
-    </select>
-    <button if="{props.project.cuelists.length > 1}" class="button-outline" onclick={(e) => change_cuelist(e, document.getElementById('sel_cuelist').value)}>  change cuelist  </button>
-    <p if="{props.project.cuelists.length < 2}">{typeof(props.cuelist) != 'undefined' ? props.cuelist.name : props.project.cuelists[0].name}</p>
+    <div class="row cue-container">
+        <div class="column column-35">
+            <select if="{props.project.cuelists.length > 1}" class="select" name="sel_cuelist" id="sel_cuelist">
+                <option each={ (cuelist, cuelist_index) in props.project.cuelists } id="cuelist{cuelist_index}" value="{cuelist_index}" selected="{props.project.currentCuelistIndex == cuelist_index}">{props.project.cuelists[cuelist_index].name}</option>
+            </select>
+            <button if="{props.project.cuelists.length > 1}" class="button-outline" onclick={(e) => change_cuelist(e, document.getElementById('sel_cuelist').value)}>  change cuelist  </button>
+            <p if="{props.project.cuelists.length < 2}">{typeof(props.cuelist) != 'undefined' ? props.cuelist.name : props.project.cuelists[0].name}</p>
+        </div>
+        <div class="column column-65">
+            <input type="text" name="cuelist_name_new" id="cuelist_name_new" class="select" size="30" maxlength="50" value="">
+            <button class="button-outline" onclick={(e) => add_cuelist(e, document.getElementById('cuelist_name_new').value)}>  create new cuelist  </button>
+            <div if="{typeof this.state.add_cuelist_message !== 'undefined' && this.state.add_cuelist_message != ''}">{this.state.add_cuelist_message}</div>
+        </div>
+    </div>
     <div>
         <div>
             <button onclick={triggerPause}>pause all</button>
@@ -87,7 +99,8 @@
                 vdevID2Index: {},
                 sceneID2Index: {},
                 change_single_mapping_messages: {},
-                change_label_messages: {}
+                change_label_messages: {},
+                add_cuelist_message: '',
             },
             async onBeforeMount(props, state) {
                 for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
@@ -151,7 +164,7 @@
                     }
                     if(found_same_mapping == 0){
                         this.props.cuelist.cues[cue_index].mappings[mapping_index] = {"virtual_device_id": vdid, "scene_id": scene_id};
-                        riot.eventBus.trigger('data_changed', {}); 
+                        riot.eventBus.trigger('data_changed'); 
                         this.update();
                     } else {
                         document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value = this.props.cuelist.cues[cue_index].mappings[mapping_index].virtual_device_id;
@@ -174,7 +187,7 @@
                     }
                     if(found_same_mapping == 0){
                         this.props.cuelist.cues[cue_index].mappings.push({"virtual_device_id": vdid, "scene_id": scene_id});
-                        riot.eventBus.trigger('data_changed', {}); 
+                        riot.eventBus.trigger('data_changed'); 
                         document.getElementById('mapping_vdid_' + cue_index + '_new').value = "";
                         document.getElementById('mapping_scene_' + cue_index + '_new').value = "";
                         this.update();
@@ -203,7 +216,7 @@
                     }
                     if(found_same_label == 0){
                         this.props.cuelist.cues[cue_index].label = label;
-                        riot.eventBus.trigger('data_changed', {}); 
+                        riot.eventBus.trigger('data_changed'); 
                         this.update();
                     } else {
                         document.getElementById('cue_label_' + cue_index).value = this.props.cuelist.cues[cue_index].label;
@@ -216,21 +229,21 @@
                     this.update();
                 }
             },
-            add_cue(e, label){
+            add_cue(e, _label){
                 e.preventDefault();
                 this.clear_messages();
-                if(label != ""){
+                if(_label != ""){
                     //check if another cue has the same label
                     let found_same_label = 0;
                     for(let cues_index = 0; cues_index < this.props.cuelist.cues.length; cues_index++){
-                        if(this.props.cuelist.cues[cues_index].label == label){
+                        if(this.props.cuelist.cues[cues_index].label == _label){
                             found_same_label++;
                         }
                     }
                     if(found_same_label == 0){
                         let uuid = self.crypto.randomUUID();
-                        this.props.cuelist.cues.push({'label': label, "id": uuid,"mappings": []});
-                        riot.eventBus.trigger('data_changed', {}); 
+                        this.props.cuelist.cues.push({'label': _label, "id": uuid,"mappings": []});
+                        riot.eventBus.trigger('data_changed'); 
                         document.getElementById('cue_label_new').value = "";
                         this.update();
                     } else {
@@ -240,6 +253,33 @@
                 } else {
                     //empty label
                     this.display_label_message('new', "Please enter a label");
+                    this.update();
+                }
+            },
+            add_cuelist(e, _name){
+                e.preventDefault();
+                if(_name != ""){
+                    //check if another cue has the same label
+                    let found_same_name = 0;
+                    for(let cuelists_index = 0; cuelists_index < this.props.project.cuelists.length; cuelists_index++){
+                        if(this.props.project.cuelists[cuelists_index].name == _name){
+                            found_same_name++;
+                        }
+                    }
+                    if(found_same_name == 0){
+                        let uuid = self.crypto.randomUUID();
+                        let uuid2 = self.crypto.randomUUID();
+                        riot.eventBus.trigger('add_cuelist', {'name': _name, "id": uuid,"cues": [{'label': "First Cue", "id": uuid,"mappings": []}]});
+                        document.getElementById('cuelist_name_new').value = "";
+                        this.state.add_cuelist_message = "Cuelist '" + _name + "' added.";
+                        this.update();
+                    } else {
+                        this.state.add_cuelist_message = "Found another cuelist with the same name. Please choose another one.";
+                        this.update();
+                    }
+                } else {
+                    //empty label
+                    this.state.add_cuelist_message = "Please enter a label";
                     this.update();
                 }
             },
@@ -257,6 +297,7 @@
             },
             clear_messages(){
                 this.state.change_label_messages = {};
+                this.state.add_cuelist_message = '';
                 this.state.change_single_mapping_messages = {};
                 this.update();
             }

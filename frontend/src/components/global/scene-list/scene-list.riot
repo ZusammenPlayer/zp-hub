@@ -59,7 +59,7 @@
                         id: uuid,
                     };
                     this.props.project.scenes.push(new_scene);
-                    riot.eventBus.trigger('data_changed', {}); 
+                    riot.eventBus.trigger('data_changed'); 
                     document.getElementById('new_scene_name').value = "";
                     this.clear_messages();
                     this.update();
@@ -73,7 +73,7 @@
                 e.preventDefault();
                 if(scene_name != ""){
                     this.props.project.scenes[scene_index].name = scene_name;
-                    riot.eventBus.trigger('data_changed', {}); 
+                    riot.eventBus.trigger('data_changed'); 
                     this.clear_messages();
                     this.update();
                 } else {
@@ -84,7 +84,7 @@
             edit_scene_instruction(e, scene_index, instruction){
                 e.preventDefault();
                 this.props.project.scenes[scene_index].instructions = instruction;
-                riot.eventBus.trigger('data_changed', {}); 
+                riot.eventBus.trigger('data_changed'); 
                 this.clear_messages();
                 this.update();
             },

@@ -2,7 +2,7 @@
     <p if={ state.load_error } class="error">{ this.state.load_error }</p>
     <div if={this.state.currentProject !== null}>   
         <h1 if={props.ap.currentProjectAction !== 'cuelists' && props.ap.currentProjectAction !== 'scenes' && props.ap.currentProjectAction !== 'mapping' && props.ap.currentProjectAction !== 'media'}><b>{this.state.title}</b>: Project Details</h1>     
-        <div is="cue-list" data-riot-component if={props.ap.currentProjectAction === 'cuelists'} project={this.state.currentProject} projectId={this.state.currentProject.id} cuelist={this.state.currentProject.cuelists[this.state.currentProject.currentCueListIndex]}></div>
+        <div is="cue-list" data-riot-component if={props.ap.currentProjectAction === 'cuelists'} project={this.state.currentProject} projectId={this.state.currentProject.id} cuelist={this.state.currentProject.cuelists[this.state.currentProject.currentCuelistIndex]}></div>
         <div is="scene-list" data-riot-component if={props.ap.currentProjectAction === 'scenes'} project={this.state.currentProject}></div>
         <div is="device-mappings" data-riot-component if={props.ap.currentProjectAction === 'mapping'} project={this.state.currentProject}></div>
         <div is="media-library" data-riot-component if={props.ap.currentProjectAction === 'media'} project={this.state.currentProject}></div>
@@ -53,8 +53,8 @@
                         this.update({ load_error: 'Error loading projects! JSON Error: ' + err});
                     }
                     if(data != {}){
-                        if(typeof(data.currentCueListIndex) == 'undefined'){
-                            data.currentCueListIndex = 0;
+                        if(typeof(data.currentCuelistIndex) == 'undefined'){
+                            data.currentCuelistIndex = 0;
                         }
                         if(typeof(data.scenes[0]) == 'undefined'){
                             data.scenes[0] = {
@@ -73,8 +73,8 @@
                         if(typeof(data.real_devices) == 'undefined'){
                             data.real_devices = []; 
                         }
-                        if(typeof(data.cuelists[data.currentCueListIndex]) == 'undefined'){
-                            data.cuelists[data.currentCueListIndex] = {
+                        if(typeof(data.currentCuelistIndex == 0 && data.cuelists[data.currentCuelistIndex]) == 'undefined'){
+                            data.cuelists[data.currentCuelistIndex] = {
                                 "id": "cuelist0", 
                                 "name": "Default Cuelist", 
                                 "cues": [{
@@ -108,8 +108,8 @@
                 
                 if(localStorageData != null && localStorageData != []){
                     if(localStorageData.slug == _slug){
-                        if(typeof(localStorageData.currentCueListIndex) == 'undefined'){
-                            localStorageData.currentCueListIndex = 0;
+                        if(typeof(localStorageData.currentCuelistIndex) == 'undefined'){
+                            localStorageData.currentCuelistIndex = 0;
                         }
                         riot.eventBus.trigger('activeProject', localStorageData); 
                         this.update({ title: localStorageData.name, currentProject: localStorageData });
@@ -128,7 +128,12 @@
             },
             async saveProject() {
                 const res = await fetch('/api/project/' + this.state.currentProject.id);
-                let payload = {scenes: this.state.currentProject.scenes};
+                let payload = {
+                    scenes: this.state.currentProject.scenes,
+                    virtual_devices: this.state.currentProject.virtual_devices,
+                    cuelists: this.state.currentProject.cuelists,
+                    meta: {name: this.state.currentProject.name, currentCuelistIndex: this.state.currentProject.currentCuelistIndex}
+                };
                 fetch('/api/project/' + this.state.currentProject.id, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json', 'Accept': 'application/json, text/plain, */*'},
@@ -151,9 +156,14 @@
                 })
             },
             async changeCuelist(_cuelistIndex){
-                this.state.currentProject.currentCueListIndex = _cuelistIndex;
-                projectStorage.save(this.state.currentProject);
+                this.state.currentProject.currentCuelistIndex = _cuelistIndex;
+                riot.eventBus.trigger('data_changed'); 
                 this.update(); 
+            },
+            async addCuelist(_cuelist){
+                this.state.currentProject.cuelists.push(_cuelist);
+                riot.eventBus.trigger('data_changed'); 
+                this.update();      
             },
             async updateDevices(_json){
                 console.log('ud: ' + _json);
@@ -164,7 +174,7 @@
                 var arr1 = _json;
                 var arr2 = this.state.currentProject.real_devices;
                 this.state.currentProject.real_devices = arr1.concat(arr2.filter( ({a}) => !arr1.find(f => f.a == a) ));
-                projectStorage.save(this.state.currentProject);
+                riot.eventBus.trigger('data_changed'); 
                 this.update();
             },
             async onBeforeMount(props, state) {
@@ -199,6 +209,10 @@
                     this.changeCuelist(_cuelistIndex);
                 }
 
+                const addCuelist = (_cuelist) => {
+                    this.addCuelist(_cuelist);
+                }
+
                 const getProjectFromHub = (_slug) => {
                     this.getProjectFromHub(_slug);
                 }
@@ -216,6 +230,10 @@
 
                 riot.eventBus.on('data_changed',function() {     
                     dataChanged();
+                });
+
+                riot.eventBus.on('add_cuelist',function(cuelist) {
+                    addCuelist(cuelist);
                 });
 
                 riot.eventBus.on('change_cuelist',function(cuelistIndex) {
