@@ -70,6 +70,9 @@
                                 "device_ids": ['fake']
                             }; 
                         }
+                        if(typeof(data.real_devices) == 'undefined'){
+                            data.real_devices = []; 
+                        }
                         if(typeof(data.cuelists[data.currentCueListIndex]) == 'undefined'){
                             data.cuelists[data.currentCueListIndex] = {
                                 "id": "cuelist0", 
@@ -147,6 +150,23 @@
                     console.error('Error uploading form data:', error);
                 })
             },
+            async changeCuelist(_cuelistIndex){
+                this.state.currentProject.currentCueListIndex = _cuelistIndex;
+                projectStorage.save(this.state.currentProject);
+                this.update(); 
+            },
+            async updateDevices(_json){
+                console.log('ud: ' + _json);
+                
+                if(typeof(this.state.currentProject.real_devices) == 'undefined'){
+                    this.state.currentProject.real_devices = [];
+                }  
+                var arr1 = _json;
+                var arr2 = this.state.currentProject.real_devices;
+                this.state.currentProject.real_devices = arr1.concat(arr2.filter( ({a}) => !arr1.find(f => f.a == a) ));
+                projectStorage.save(this.state.currentProject);
+                this.update();
+            },
             async onBeforeMount(props, state) {
                 state.activePage = props.ap;
                 await this.getProject(props.params.slug)
@@ -171,6 +191,14 @@
                     this.getProject(_slug);
                 }
 
+                const updateDevices = (_json) => {
+                    this.updateDevices(_json);
+                }
+
+                const changeCuelist = (_cuelistIndex) => {
+                    this.changeCuelist(_cuelistIndex);
+                }
+
                 const getProjectFromHub = (_slug) => {
                     this.getProjectFromHub(_slug);
                 }
@@ -188,6 +216,14 @@
 
                 riot.eventBus.on('data_changed',function() {     
                     dataChanged();
+                });
+
+                riot.eventBus.on('change_cuelist',function(cuelistIndex) {
+                    changeCuelist(cuelistIndex);
+                });
+
+                riot.eventBus.on('current_devices',function(devices) {     
+                    updateDevices(devices);
                 });
 
                 riot.eventBus.on('revert_project',function() {  

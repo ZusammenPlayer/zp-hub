@@ -11,7 +11,7 @@
         }
     </style>
 
-    <h1><b>{props.project.name}</b>: Mapping</h1>
+    <h1><b>{props.project.name}</b>: Device Mapping</h1>
 
     <div>
         <div class="row zp-container">
@@ -23,14 +23,14 @@
         <div class="row zp-container" each={(virtual_device, index) in props.project.virtual_devices}>
             <div class="column column-50">  
                 <input type="text" name="virtual_device_name_{index}" id="virtual_device_name_{index}" size="30" maxlength="50" value="{virtual_device.name}">
-                <button class="button-outline" onclick={() => edit_virtual_device_name(index, document.getElementById('virtual_device_name_'+index).value)}>  edit  </button>
+                <button class="button-outline" onclick={(e) => edit_virtual_device_name(e, index, document.getElementById('virtual_device_name_'+index).value)}>  edit  </button>
             </div>
             <div class="column column-50"> 
-                <div each={(id, index) in virtual_device.device_ids}> {index + 1} : {props.project.real_devices[id]} </div>
-                <div if="{Object.keys(props.project.real_devices).length > virtual_device.device_ids.length}">
+                <div each={(id, index) in virtual_device.device_ids}> {index + 1} : {id} </div>
+                <div if="{props.project.real_devices.length > virtual_device.device_ids.length}">
                     + : <select class="addDevice" name="select{virtual_device.id}" id="select{virtual_device.id}"">
-                        <option each={real_device in Object.entries(props.project.real_devices)} value="{real_device[0]}" if="{virtual_device.device_ids.indexOf(real_device[0]) === -1}"> {real_device[1]} </option>
-                    </select> <button class="button-outline" onclick={() => add_device_to_virtual_device(document.getElementById('select' + virtual_device.id).value, index)}>  add  </button>
+                        <option each={(real_device, rd_index) in props.project.real_devices} value="{real_device.uid}" if="{virtual_device.device_ids.indexOf(real_device.uid) === -1}"> {real_device.uid} </option>
+                    </select> <button class="button-outline" onclick={(e) => add_device_to_virtual_device(e, document.getElementById('select' + virtual_device.id).value, index)}>  add  </button>
                 </div>
                 <div if="{this.state.add_real_device_messages.length > index && this.state.add_real_device_messages[index].text !== ''}">{this.state.add_real_device_messages[index].text}</div>
                 
@@ -38,7 +38,7 @@
         </div>
         <div class="row zp-container">
             <div class="column column-50">  <input type="text" name="new_virtual_device_name" id="new_virtual_device_name" size="30" maxlength="50"></div>
-            <div class="column column-50">  <button class="button-outline" onclick={() => add_virtual_device(document.getElementById('new_virtual_device_name').value)}>  add  virtual device</button> 
+            <div class="column column-50">  <button class="button-outline" onclick={(e) => add_virtual_device(e, document.getElementById('new_virtual_device_name').value)}>  add  virtual device</button> 
                 <div if="{this.state.add_virtual_device_message.text !== ''}">{this.state.add_virtual_device_message.text}</div>
             </div>
         </div>
@@ -62,7 +62,8 @@
                 }
                 state.add_virtual_device_message.text = "";
             },
-            add_device_to_virtual_device(real_device_id, virtual_device_index){
+            add_device_to_virtual_device(e, real_device_id, virtual_device_index){
+                e.preventDefault();
                 if(real_device_id != ""){
                     if(this.props.project.virtual_devices[virtual_device_index].device_ids.indexOf(real_device_id) === -1){
                         this.props.project.virtual_devices[virtual_device_index].device_ids.push(real_device_id);
@@ -75,7 +76,8 @@
                     }
                 }
             },
-            edit_virtual_device_name(virtual_device_index, virtual_device_name){
+            edit_virtual_device_name(e, virtual_device_index, virtual_device_name){
+                e.preventDefault();
                 if(virtual_device_name != ""){
                     this.props.project.virtual_devices[virtual_device_index].name = virtual_device_name;
                     riot.eventBus.trigger('data_changed', {}); 
@@ -86,7 +88,8 @@
                 }
                 
             },
-            add_virtual_device(virtual_device_name){
+            add_virtual_device(e, virtual_device_name){
+                e.preventDefault();
                 let uuid = self.crypto.randomUUID();
 
                 if(virtual_device_name != ""){

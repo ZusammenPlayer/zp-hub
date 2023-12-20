@@ -43,6 +43,8 @@
     </div>
   </div> 
   <script>
+    import observable from '@riotjs/observable'
+    var riot = require('riot');
     const io = require('socket.io-client');
     export default {
       state: {
@@ -72,8 +74,11 @@
           console.log('event: device-list');
           const json = JSON.parse(data);
           console.log(data);
+          riot.eventBus.trigger('current_devices', json); 
           this.update({devices: json});
         })
+
+
       },
     }
   </script>

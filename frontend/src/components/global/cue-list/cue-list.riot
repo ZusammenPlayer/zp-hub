@@ -12,7 +12,11 @@
     </style>
 
     <h1><b>{props.project.name}</b>: cue list</h1>
-    <p>name: {typeof(props.cuelist) != 'undefined' ? props.cuelist.name : props.project.cuelists[0].name}</p>
+    <select if="{props.project.cuelists.length > 1}" class="mapping" name="sel_cuelist" id="sel_cuelist">
+        <option each={ (cuelist, cuelist_index) in props.project.cuelists } id="cuelist{cuelist_index}" value="{cuelist_index}" selected="{props.project.currentCueListIndex == cuelist_index}">{props.project.cuelists[cuelist_index].name}</option>
+    </select>
+    <button if="{props.project.cuelists.length > 1}" class="button-outline" onclick={(e) => change_cuelist(e, document.getElementById('sel_cuelist').value)}>  change cuelist  </button>
+    <p if="{props.project.cuelists.length < 2}">{typeof(props.cuelist) != 'undefined' ? props.cuelist.name : props.project.cuelists[0].name}</p>
     <div>
         <div>
             <button onclick={triggerPause}>pause all</button>
@@ -123,6 +127,11 @@
                 } catch (error) {
                     console.log({ error });
                 }
+            },
+            //select cuelist
+            change_cuelist(e, cuelist_index){
+                e.preventDefault();
+                riot.eventBus.trigger('change_cuelist', cuelist_index); 
             },
             //mappings
             change_single_mapping(e, vdid, scene_id, mapping_index, cue_index){

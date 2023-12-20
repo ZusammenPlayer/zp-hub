@@ -9,7 +9,7 @@ export default [{
   },
   {
     path: 'mapping',
-    label: 'Mapping',
+    label: 'Device Mapping',
     componentName: 'mapping'
   },
   {
