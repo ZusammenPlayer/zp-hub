@@ -48,7 +48,7 @@ async def trigger_cue(request):
         error = {"code": 44, "message": "unknown cueId"}
         return web.HTTPBadRequest(text=json.dumps(error))
 
-    logging.info("trigger cue: ", cue["label"])
+    logging.info("trigger cue: " + cue["label"])
 
     # collect all trigger
     trigger = []

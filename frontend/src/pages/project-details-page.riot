@@ -166,7 +166,7 @@
                 this.update();      
             },
             async updateDevices(_json){
-                console.log('ud: ' + _json);
+                
                 
                 if(typeof(this.state.currentProject.real_devices) == 'undefined'){
                     this.state.currentProject.real_devices = [];
@@ -240,7 +240,7 @@
                     changeCuelist(cuelistIndex);
                 });
 
-                riot.eventBus.on('current_devices',function(devices) {     
+                riot.eventBus.on('update_devices',function(devices) {     
                     updateDevices(devices);
                 });
 

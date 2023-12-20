@@ -74,7 +74,7 @@
           console.log('event: device-list');
           const json = JSON.parse(data);
           console.log(data);
-          riot.eventBus.trigger('current_devices', json); 
+          riot.eventBus.trigger('update_devices', json); 
           this.update({devices: json});
         })
 
