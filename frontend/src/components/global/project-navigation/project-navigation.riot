@@ -13,14 +13,14 @@
         <nav class="navigation menu">
             <section class="container">
                 <a class="navigation-title active" href="/">Zusammenplayer</a>
-                <a class="navigation-title active" href="{ props.ap.currentProjectPath }">{this.state.title}</a>
+                <a class="navigation-title active" href="{ props.navActivePage.currentProjectPath }">{this.state.title}</a>
                 <a
                     each={page in this.state.projectPages}
-                    class="navigation-title {props.ap.currentProjectAction != null && props.ap.currentProjectAction === page.componentName ? 'active' : '' }"
-                    href={props.ap.currentProjectPath}{page.path}>
+                    class="navigation-title {props.navActivePage.currentProjectAction != null && props.navActivePage.currentProjectAction === page.componentName ? 'active' : '' }"
+                    href={props.navActivePage.currentProjectPath}{page.path}>
                     {page.label}
                 </a>
-                <button class="button h1-button" onclick={(e) => save_project(e, props.ap.id)}>  save changes </button><button class="button-outline h1-button" onclick={(e) => revert_project(e, props.ap.slug)}>  revert</button>
+                <button class="button h1-button" onclick={(e) => save_project(e)}>  save changes </button><button class="button-outline h1-button" onclick={(e) => revert_project(e, props.navActivePage.slug)}>  revert</button>
             </section>
         </nav>
     </div>
@@ -38,7 +38,7 @@
             activePage: null
         },
         onBeforeMount(){
-            this.state.activePage = this.props.ap;
+            this.state.activePage = this.props.navActivePage;
         },
         onMounted() {
             const activePageUpdate = (input) => {

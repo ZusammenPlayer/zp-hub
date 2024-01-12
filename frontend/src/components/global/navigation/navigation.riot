@@ -2,8 +2,8 @@
   <div class="row">
     <nav class="navigation menu">
         <section class="container">
-            <zp-navigation ap={state.activePage} if={!props.ap.path.startsWith('/project')}/> 
-            <project-navigation ap={state.activePage} if={props.ap.path.startsWith('/project')}/> 
+            <zp-navigation navActivePage={state.activePage} if={!props.navActivePage.path.startsWith('/project')}/> 
+            <project-navigation navActivePage={state.activePage} if={props.navActivePage.path.startsWith('/project')}/> 
         </section>
     </nav>
   </div>

@@ -1,7 +1,7 @@
 <app>
   <div class="container">
       <router>
-        <navigation ap={state.activePage}></navigation>
+        <navigation navActivePage={state.activePage}></navigation>
         <div class="main-content">
           <div if={state.showNotFound} class="row">
             <div class="column">
@@ -11,7 +11,7 @@
           <div if={!state.showNotFound} class="row">
             <div class="column">
               <route each={page in state.pages} path={page.path}>
-                <main is={page.componentName} params={route.params} ap={state.activePage}/>
+                <main is={page.componentName} params={route.params} navActivePage={state.activePage}/>
               </route>
             </div>
           </div>

@@ -1,15 +1,18 @@
 <project-details>
     <p if={ state.load_error } class="error">{ this.state.load_error }</p>
     <div if={this.state.currentProject !== null}>   
-        <h1 if={props.ap.currentProjectAction !== 'cuelists' && props.ap.currentProjectAction !== 'scenes' && props.ap.currentProjectAction !== 'mapping' && props.ap.currentProjectAction !== 'media'}><b>{this.state.title}</b>: Project Details</h1>     
-        <div is="cue-list" data-riot-component if={props.ap.currentProjectAction === 'cuelists'} project={this.state.currentProject} projectId={this.state.currentProject.id} cuelist={this.state.currentProject.cuelists[this.state.currentProject.currentCuelistIndex]}></div>
-        <div is="scene-list" data-riot-component if={props.ap.currentProjectAction === 'scenes'} project={this.state.currentProject}></div>
-        <div is="device-mappings" data-riot-component if={props.ap.currentProjectAction === 'mapping'} project={this.state.currentProject}></div>
-        <div is="media-library" data-riot-component if={props.ap.currentProjectAction === 'media'} project={this.state.currentProject}></div>
+        <h1 if={props.navActivePage.currentProjectAction !== 'cuelists' && props.navActivePage.currentProjectAction !== 'scenes' && props.navActivePage.currentProjectAction !== 'mapping' && props.navActivePage.currentProjectAction !== 'media'}><b>{this.state.title}</b>: Project Details</h1>     
+        <div is="cue-list" data-riot-component if={props.navActivePage.currentProjectAction === 'cuelists'} project={this.state.currentProject} projectId={this.state.currentProject.id} cuelist={this.state.currentProject.cuelists[this.state.currentProject.currentCuelistIndex]}></div>
+        <div is="scene-list" data-riot-component if={props.navActivePage.currentProjectAction === 'scenes'} project={this.state.currentProject}></div>
+        <div is="device-mappings" data-riot-component if={props.navActivePage.currentProjectAction === 'mapping'} project={this.state.currentProject}></div>
+        <div is="media-library" data-riot-component if={props.navActivePage.currentProjectAction === 'media'} project={this.state.currentProject}></div>
     </div>
 
     <div id="debug-footer" class="active" > 
+        state.currentProject
         <textarea style="min-height: 20em;">{ JSON.stringify(this.state.currentProject) }</textarea>
+        props
+        <textarea style="min-height: 20em;">{ JSON.stringify(props) }</textarea>
     </div> 
     
     <script>
@@ -90,6 +93,7 @@
                             };
                         }
                         this.update({ title: data.name, currentProject: data });
+                        this.state.currentProject.test = "huhu";
                         console.log("project: " + this.state.currentProject.name);
                         projectStorage.save(data);
                         riot.eventBus.trigger('activeProject', data); 
@@ -178,7 +182,7 @@
                 this.update();
             },
             async onBeforeMount(props, state) {
-                state.activePage = props.ap;
+                state.activePage = props.navActivePage;
                 await this.getProject(props.params.slug)
             },
             onMounted(props, state) {
