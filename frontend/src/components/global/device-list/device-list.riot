@@ -73,7 +73,7 @@
         socket.on('device-list', (data) => {
           console.log('event: device-list');
           const json = JSON.parse(data);
-          console.log(data);
+          console.log('device-list' + data);
           riot.eventBus.trigger('update_devices', json); 
           this.update({devices: json});
         })
