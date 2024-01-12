@@ -6,6 +6,7 @@ from database import Database
 import config
 import logging
 import logging.handlers
+import sys
 
 
 def setup_logging():
@@ -17,6 +18,8 @@ def setup_logging():
     handler.setFormatter(formatter)
     logger = logging.getLogger()
     logger.addHandler(handler)
+    if config.app_mode == 'develop':
+        logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.INFO)
 
 
