@@ -28,6 +28,24 @@
     import observable from '@riotjs/observable'
     import pages from './pages'
     var riot = require('riot')
+    
+    var DEVICES_STORAGE_KEY = 'zp-hub-devices';
+    window.devicesStorage = {
+        fetch: function () {
+            let parsed = {};
+            try {
+                parsed = JSON.parse(localStorage.getItem(DEVICES_STORAGE_KEY) || '[]');
+            } catch (e) {
+                console.log('LS JSON parsing failed.' + e)
+                //this.update({ title: [], load_error: e });
+                return [];
+            }
+            return parsed;
+        },
+        save: function (devicesData) {
+            localStorage.setItem(DEVICES_STORAGE_KEY, JSON.stringify(devicesData));
+        }
+    };
 
     window.stateContainer = {}
     const defaultActivePage = pages.find(p => match('/', toRegexp(p.path)))
@@ -54,6 +72,11 @@
         showNotFound: false,
         activePage: defaultActivePage
       },
+
+      updateDevices(_devices){
+        devicesStorage.save(_devices);
+      },
+
       onBeforeMount({ isServer }) {
         this.anyRouteStream = route('(.*)')
         this.anyRouteStream.on.value(this.onAnyRoute)
@@ -63,8 +86,18 @@
         }
         riot.eventBus = new EventBus();
       },
+
       onMounted(){
+        const updateDevices = (_devices) => {
+            this.updateDevices(_devices);
+        }
+        
+        riot.eventBus.on('update_devices',function(devices) { 
+            console.log('app.riot-dev'); 
+            updateDevices(devices);
+        });
       },
+      
       onAnyRoute(path) {
         // show the not found page if none of the page paths are matched
         var activePage = pages.find(p => match(path.pathname, toRegexp(p.path)))
@@ -86,10 +119,12 @@
         window.stateContainer.activePage = this.state.activePage
         riot.eventBus.trigger('activePage', window.stateContainer.activePage)
       },
+      
       onBeforeUnmount() {
         this.anyRouteStream.end()
         this.projectRouteStream.end()
-      }
+      },
+      
       
     }
     

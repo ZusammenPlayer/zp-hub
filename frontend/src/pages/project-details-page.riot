@@ -20,7 +20,7 @@
         var riot = require('riot')
 
         var PROJECT_STORAGE_KEY = 'zp-hub-project';
-        var DEVICES_STORAGE_KEY = 'zp-hub-devices';
+        
 
         window.projectStorage = {
             fetch: function () {
@@ -35,25 +35,10 @@
                 return parsed;
             },
             save: function (projectData) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(projectData));
+                localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(projectData));
             }
         };
-        window.devicesStorage = {
-            fetch: function () {
-                let parsed = {};
-                try {
-                    parsed = JSON.parse(localStorage.getItem(DEVICES_STORAGE_KEY) || '[]');
-                } catch (e) {
-                    console.log('LS JSON parsing failed.' + e)
-                    //this.update({ title: [], load_error: e });
-                    return [];
-                }
-                return parsed;
-            },
-            save: function (devicesData) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(devicesData));
-            }
-        };
+        
         
         export default {
             state: {
@@ -183,15 +168,6 @@
                 this.state.currentProject.cuelists.push(_cuelist);
                 riot.eventBus.trigger('data_changed');     
             },
-            async updateDevices(_json){
-                if(typeof(this.state.currentProject.real_devices) == 'undefined'){
-                    this.state.currentProject.real_devices = [];
-                }  
-                var arr1 = _json;
-                var arr2 = this.state.currentProject.real_devices;
-                this.state.currentProject.real_devices = arr1.concat(arr2.filter( ({a}) => !arr1.find(f => f.a == a) ));
-                riot.eventBus.trigger('data_changed'); 
-            },
             async onBeforeMount(props, state) {
                 state.activePage = props.navActivePage;
                 await this.getProject(props.params.slug)
@@ -209,6 +185,7 @@
 
                 const dataChanged = () => {
                     projectStorage.save(this.state.currentProject);
+                    console.log('pdp-dataChanged');  
                     this.update();
                 }
 
@@ -216,9 +193,6 @@
                     this.getProject(_slug);
                 }
 
-                const updateDevices = (_json) => {
-                    this.updateDevices(_json);
-                }
 
                 const changeCuelist = (_cuelistIndex) => {
                     this.changeCuelist(_cuelistIndex);
@@ -243,7 +217,8 @@
                     }   
                 })
 
-                riot.eventBus.on('data_changed',function() {     
+                riot.eventBus.on('data_changed',function() {    
+                    
                     dataChanged();
                 });
 
@@ -254,11 +229,8 @@
                 riot.eventBus.on('change_cuelist',function(cuelistIndex) {
                     changeCuelist(cuelistIndex);
                 });
-
-                riot.eventBus.on('update_devices',function(devices_json) {  
-                    console.log('pdp-onMounted' + devices_json);   
-                    updateDevices(devices_json);
-                });
+                
+                
 
                 riot.eventBus.on('revert_project',function() {  
                     getProjectFromHub(props.params.slug);
