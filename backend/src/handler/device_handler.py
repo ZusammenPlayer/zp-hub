@@ -3,7 +3,7 @@ from socketio_manager import SocketIOManager
 
 
 def setup(app: web.Application):
-    app.router.add_get("/api/device", get_all_devices)
+    app.router.add_get("/api/devices", get_all_devices)
 
 
 async def get_all_devices(request):
