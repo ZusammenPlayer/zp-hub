@@ -47,7 +47,7 @@
             async createNewProject(e, _name) {
                 e.preventDefault();
                 let payload = {name: _name};
-                fetch(`/api/project`, {
+                await fetch(`/api/project`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json', 'Accept': 'application/json, text/plain, */*'},
                     body: JSON.stringify(payload)
@@ -57,11 +57,12 @@
                         // Handle the successful response
                         console.log('Form data uploaded successfully!');
                         this.getProjects();
-                        this.update({ projects: data });
+                        document.getElementById('newProjectName').value = '';
                     } else {
                         // Handle the error response
-                        this.update({ load_error: 'Error creating project! status code: ' + response.statusText});
+                        response.json().then(body => this.update({ load_error: 'Error creating project! status code: ' + body.message}));
                         console.error('Error uploading form data:', response.statusText);
+                        document.getElementById('newProjectName').value = '';
                     }
                 })
                 .catch(error => {

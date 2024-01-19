@@ -2,7 +2,7 @@
     <p if={ state.load_error } class="error">{ this.state.load_error }</p>
     <div if={this.state.currentProject !== null}>   
         <h1 if={props.navActivePage.currentProjectAction !== 'cuelists' && props.navActivePage.currentProjectAction !== 'scenes' && props.navActivePage.currentProjectAction !== 'mapping' && props.navActivePage.currentProjectAction !== 'media'}><b>{this.state.title}</b>: Project Details</h1>     
-        <div is="cue-list" data-riot-component if={props.navActivePage.currentProjectAction === 'cuelists'} project={this.state.currentProject} projectId={this.state.currentProject.id} cuelist={this.state.currentProject.cuelists[this.state.currentProject.currentCuelistIndex]}></div>
+        <div is="cue-list" data-riot-component if={props.navActivePage.currentProjectAction === 'cuelists'} project={this.state.currentProject}></div>
         <div is="scene-list" data-riot-component if={props.navActivePage.currentProjectAction === 'scenes'} project={this.state.currentProject}></div>
         <div is="device-mappings" data-riot-component if={props.navActivePage.currentProjectAction === 'mapping'} project={this.state.currentProject}></div>
         <div is="media-library" data-riot-component if={props.navActivePage.currentProjectAction === 'media'} project={this.state.currentProject}></div>
@@ -61,39 +61,10 @@
                         if(typeof(data.currentCuelistIndex) == 'undefined'){
                             data.currentCuelistIndex = 0;
                         }
-                        if(typeof(data.scenes[0]) == 'undefined'){
-                            data.scenes[0] = {
-                                "id": "sceneid1",
-                                "name": "black",
-                                "instructions": "bg color #000000"
-                            }; 
-                        }
-                        if(typeof(data.virtual_devices[0]) == 'undefined'){
-                            data.virtual_devices[0] = {
-                                "id": "vdid1",
-                                "name": "V Device 1",
-                                "device_ids": ['fake']
-                            }; 
-                        }
                         if(typeof(data.real_devices) == 'undefined'){
                             data.real_devices = []; 
                         }
-                        if(typeof(data.currentCuelistIndex == 0 && data.cuelists[data.currentCuelistIndex]) == 'undefined'){
-                            data.cuelists[data.currentCuelistIndex] = {
-                                "id": "cuelist0", 
-                                "name": "Default Cuelist", 
-                                "cues": [{
-                                            "id": "cueid1",
-                                            "label": "Default Cue",
-                                            "mappings": [
-                                                {
-                                                "virtual_device_id": "vdid1",
-                                                "scene_id": "sceneid1"
-                                                }
-                                            ]
-                                        }]
-                            };
-                        }
+                        
                         this.update({ title: data.name, currentProject: data });
                         console.log("project: " + this.state.currentProject.name);
                         projectStorage.save(data);
@@ -160,14 +131,6 @@
                     console.error('Error uploading form data:', error);
                 })
             },
-            async changeCuelist(_cuelistIndex){
-                this.state.currentProject.currentCuelistIndex = _cuelistIndex;
-                riot.eventBus.trigger('data_changed'); 
-            },
-            async addCuelist(_cuelist){
-                this.state.currentProject.cuelists.push(_cuelist);
-                riot.eventBus.trigger('data_changed');     
-            },
             async onBeforeMount(props, state) {
                 state.activePage = props.navActivePage;
                 await this.getProject(props.params.slug)
@@ -193,15 +156,6 @@
                     this.getProject(_slug);
                 }
 
-
-                const changeCuelist = (_cuelistIndex) => {
-                    this.changeCuelist(_cuelistIndex);
-                }
-
-                const addCuelist = (_cuelist) => {
-                    this.addCuelist(_cuelist);
-                }
-
                 const getProjectFromHub = (_slug) => {
                     this.getProjectFromHub(_slug);
                 }
@@ -217,20 +171,9 @@
                     }   
                 })
 
-                riot.eventBus.on('data_changed',function() {    
-                    
+                riot.eventBus.on('data_changed',function() {     
                     dataChanged();
                 });
-
-                riot.eventBus.on('add_cuelist',function(cuelist) {
-                    addCuelist(cuelist);
-                });
-
-                riot.eventBus.on('change_cuelist',function(cuelistIndex) {
-                    changeCuelist(cuelistIndex);
-                });
-                
-                
 
                 riot.eventBus.on('revert_project',function() {  
                     getProjectFromHub(props.params.slug);

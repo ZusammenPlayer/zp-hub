@@ -17,11 +17,12 @@
     <h1><b>{props.project.name}</b>: cue list</h1>
     <div class="row cue-container">
         <div class="column column-35">
-            <select if="{props.project.cuelists.length > 1}" class="select" name="sel_cuelist" id="sel_cuelist">
+            <select if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length > 1}" class="select" name="sel_cuelist" id="sel_cuelist">
                 <option each={ (cuelist, cuelist_index) in props.project.cuelists } id="cuelist{cuelist_index}" value="{cuelist_index}" selected="{props.project.currentCuelistIndex == cuelist_index}">{props.project.cuelists[cuelist_index].name}</option>
             </select>
-            <button if="{props.project.cuelists.length > 1}" class="button-outline" onclick={(e) => change_cuelist(e, document.getElementById('sel_cuelist').value)}>  change cuelist  </button>
-            <p if="{props.project.cuelists.length < 2}">{typeof(props.cuelist) != 'undefined' ? props.cuelist.name : props.project.cuelists[0].name}</p>
+            <button if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length > 1}" class="button-outline" onclick={(e) => change_cuelist(e, document.getElementById('sel_cuelist').value)}>  change cuelist  </button>
+            <p if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length < 2}">{typeof props.project.cuelists[0] != 'undefined' && typeof props.project.cuelists[0].name != 'undefined' ? props.project.cuelists[0].name : 'You don\'t have a cue list yet. Please create one!'}</p>
+            <p if="{typeof props.project.cuelists == 'undefined'}">You don't have a cue list yet. Please create one!</p>
         </div>
         <div class="column column-65">
             <input type="text" name="cuelist_name_new" id="cuelist_name_new" class="select" size="30" maxlength="50" value="">
@@ -29,7 +30,7 @@
             <div if="{typeof this.state.add_cuelist_message !== 'undefined' && this.state.add_cuelist_message != ''}">{this.state.add_cuelist_message}</div>
         </div>
     </div>
-    <div>
+    <div if="{typeof props.project.cuelists != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex] != 'undefined'}">
         <div>
             <button onclick={triggerPause}>pause all</button>
         </div>
@@ -38,14 +39,14 @@
             <div class="column column-50"><b>Mapping (Virtual Device -> Scene)</b></div>
             <div class="column column-20"><b>Action</b></div>
         </div>
-        <div class="row cue-container" each={ (cue, cue_index) in props.cuelist.cues }>
+        <div if="{typeof props.project.cuelists != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex] != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex].cues != 'undefined'}" class="row cue-container" each={ (cue, cue_index) in props.project.cuelists[props.project.currentCuelistIndex].cues }>
             <div class="column column-30">
                 <input type="text" name="cue_label_{cue_index}" id="cue_label_{cue_index}" size="30" maxlength="50" value="{ cue.label}">
                 <button class="button-outline" onclick={(e) => change_cue_label(e, cue_index, document.getElementById('cue_label_'+cue_index).value)}>  change name  </button>
                 <div if="{typeof this.state.change_label_messages[cue_index] !== 'undefined' && this.state.change_label_messages[cue_index] != ''}">{this.state.change_label_messages[cue_index]}</div>
             </div>
             <div class="column column-50">
-                <div each={(mapping, mapping_index) in props.cuelist.cues[cue_index].mappings}>
+                <div each={(mapping, mapping_index) in props.project.cuelists[props.project.currentCuelistIndex].cues[cue_index].mappings}>
                     <div>
                         <select class="mapping" name="mapping_vdid_{cue_index}_{mapping_index}" id="mapping_vdid_{cue_index}_{mapping_index}">
                             <option value=""> delete </option>
@@ -58,9 +59,9 @@
                         <button class="button-outline" onclick={(e) => change_single_mapping(e, document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value, document.getElementById('mapping_scene_' + cue_index + '_' + mapping_index).value, mapping_index, cue_index)}>  apply  </button>
                         <div if="{typeof this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] !== 'undefined' && this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] != ''}">{this.state.change_single_mapping_messages[cue_index + '_' + mapping_index]}</div>
                     </div>
-                </div>
-                <div if="{this.props.project.virtual_devices.length > props.cuelist.cues[cue_index].mappings.length}">
-                    <div>
+                </div>{props.project.scenes.length}
+                <div if="{props.project.scenes.length == 0 || props.project.virtual_devices.length == 0 || props.project.virtual_devices.length > props.project.cuelists[props.project.currentCuelistIndex].cues[cue_index].mappings.length}">
+                    <div if="{props.project.scenes.length > 0 && props.project.virtual_devices.length > 0}">
                         <select class="mapping" name="mapping_vdid_{cue_index}_new" id="mapping_vdid_{cue_index}_new">
                             <option value=""> ... </option>
                             <option each={virtual_device in props.project.virtual_devices} value="{virtual_device.id}"> {virtual_device.name} </option>
@@ -71,6 +72,10 @@
                         </select>
                         <button class="button-outline" onclick={(e) => add_mapping(e, document.getElementById('mapping_vdid_' + cue_index + '_new').value, document.getElementById('mapping_scene_' + cue_index + '_new').value, cue_index)}>  add  </button>
                     </div>
+                    <div if="{props.project.scenes.length == 0 || props.project.virtual_devices.length == 0}">
+                        <div if="{props.project.scenes.length == 0}"> Please create at least one scene first. (<a href="scenes">Scenes</a>)</div>
+                        <div if="{props.project.virtual_devices.length == 0}">Please create at least one virtual device first. (<a href="mapping">Device Mapping</a>)</div>
+                    </div>
                     <div if="{typeof this.state.change_single_mapping_messages[cue_index + '_new'] !== 'undefined' && this.state.change_single_mapping_messages[cue_index + '_new'] != ''}">{this.state.change_single_mapping_messages[cue_index + '_new']}</div>
                 </div>
                 
@@ -79,7 +84,7 @@
                 <button data-id={cue.id} onclick={triggerCue}>Go</button>
             </div>
         </div>
-        <div class="row cue-container">
+        <div if="{typeof props.project.cuelists != 'undefined' && typeof props.project.cuelists[0] != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined'}" class="row cue-container">
             <div class="column column-30">
                 Add Cue: <input type="text" name="cue_label_new" id="cue_label_new" size="30" maxlength="50" value="" style="max-width: 30%; margin-right: 1%;">
                 <button class="button-outline" onclick={(e) => add_cue(e, document.getElementById('cue_label_new').value)}>  add  </button>
@@ -105,17 +110,19 @@
             async onBeforeMount(props, state) {
                 for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
                     this.state.vdevID2Index[this.props.project.virtual_devices[virtual_device_index].id] = virtual_device_index;
-                    
                 }
                 for(let scene_index = 0; scene_index < this.props.project.scenes.length; scene_index++){
                     this.state.sceneID2Index[this.props.project.scenes[scene_index].id] = scene_index; 
                 }
             },
+            async onMount(props, state) {
+                this.update();
+            },
             async triggerCue(e) {
                 e.preventDefault();
                 const data = {
-                    projectId: this.props.projectId,
-                    cuelistId: this.props.cuelist.id,
+                    projectId: this.props.project.id,
+                    cuelistId: this.props.project.cuelists[this.props.project.currentCuelistIndex].id,
                     cueId: e.target.dataset.id
                 };
                 try {
@@ -130,7 +137,7 @@
             },
             async triggerPause(e) {
                 e.preventDefault();
-                const data = { projectId: this.props.projectId };
+                const data = { projectId: this.props.project.id };
                 try {
                     const res = await fetch(`/api/project/pause`, {
                         method: 'post',
@@ -144,7 +151,9 @@
             //select cuelist
             change_cuelist(e, cuelist_index){
                 e.preventDefault();
-                riot.eventBus.trigger('change_cuelist', cuelist_index); 
+                this.props.project.currentCuelistIndex = cuelist_index;
+                riot.eventBus.trigger('data_changed'); 
+                this.update();
             },
             //mappings
             change_single_mapping(e, vdid, scene_id, mapping_index, cue_index){
@@ -152,22 +161,22 @@
                 this.clear_messages();
                 if(vdid == ""){
                     //delete mapping
-                    this.props.cuelist.cues[cue_index].mappings.splice(mapping_index, 1);
+                    this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].mappings.splice(mapping_index, 1);
                     this.update();
                 } else  {
                     //check if player has already another mapping
                     let found_same_mapping = 0;
-                    for(let mappings_index = 0; mappings_index < this.props.cuelist.cues[cue_index].mappings.length; mappings_index++){
-                        if(this.props.cuelist.cues[cue_index].mappings[mappings_index].virtual_device_id == vdid && mappings_index != mapping_index){
+                    for(let mappings_index = 0; mappings_index < this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].mappings.length; mappings_index++){
+                        if(this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].mappings[mappings_index].virtual_device_id == vdid && mappings_index != mapping_index){
                             found_same_mapping++;
                         }
                     }
                     if(found_same_mapping == 0){
-                        this.props.cuelist.cues[cue_index].mappings[mapping_index] = {"virtual_device_id": vdid, "scene_id": scene_id};
+                        this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].mappings[mapping_index] = {"virtual_device_id": vdid, "scene_id": scene_id};
                         riot.eventBus.trigger('data_changed'); 
                         this.update();
                     } else {
-                        document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value = this.props.cuelist.cues[cue_index].mappings[mapping_index].virtual_device_id;
+                        document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value = this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].mappings[mapping_index].virtual_device_id;
                         this.display_single_mapping_message(cue_index, mapping_index, "Found same mapping. Please choose another one.");
                         this.update();
                     }
@@ -180,16 +189,18 @@
                 if(vdid != ""){
                     //check if player has already another mapping
                     let found_same_mapping = 0;
-                    for(let mappings_index = 0; mappings_index < this.props.cuelist.cues[cue_index].mappings.length; mappings_index++){
-                        if(this.props.cuelist.cues[cue_index].mappings[mappings_index].virtual_device_id == vdid){
+                    for(let mappings_index = 0; mappings_index < this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].mappings.length; mappings_index++){
+                        if(this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].mappings[mappings_index].virtual_device_id == vdid){
                             found_same_mapping++;
                         }
                     }
                     if(found_same_mapping == 0){
-                        this.props.cuelist.cues[cue_index].mappings.push({"virtual_device_id": vdid, "scene_id": scene_id});
+                        this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].mappings.push({"virtual_device_id": vdid, "scene_id": scene_id});
                         riot.eventBus.trigger('data_changed'); 
-                        document.getElementById('mapping_vdid_' + cue_index + '_new').value = "";
-                        document.getElementById('mapping_scene_' + cue_index + '_new').value = "";
+                        if(document.getElementById('mapping_vdid_' + cue_index + '_new'))
+                            document.getElementById('mapping_vdid_' + cue_index + '_new').value = "";
+                        if(document.getElementById('mapping_scene_' + cue_index + '_new'))
+                            document.getElementById('mapping_scene_' + cue_index + '_new').value = "";
                         this.update();
                     } else {
                         this.display_single_mapping_message(cue_index, 'new', "Found same mapping. Please choose another one.");
@@ -209,17 +220,17 @@
                 if(label != ""){
                     //check if another cue has the same label
                     let found_same_label = 0;
-                    for(let cues_index = 0; cues_index < this.props.cuelist.cues.length; cues_index++){
-                        if(this.props.cuelist.cues[cues_index].label == label && cues_index != cue_index){
+                    for(let cues_index = 0; cues_index < this.props.project.cuelists[this.props.project.currentCuelistIndex].cues.length; cues_index++){
+                        if(this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cues_index].label == label && cues_index != cue_index){
                             found_same_label++;
                         }
                     }
                     if(found_same_label == 0){
-                        this.props.cuelist.cues[cue_index].label = label;
+                        this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].label = label;
                         riot.eventBus.trigger('data_changed'); 
                         this.update();
                     } else {
-                        document.getElementById('cue_label_' + cue_index).value = this.props.cuelist.cues[cue_index].label;
+                        document.getElementById('cue_label_' + cue_index).value = this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cue_index].label;
                         this.display_label_message(cue_index, "Found another cue with the same label. Please choose another one.");
                         this.update();
                     }
@@ -235,14 +246,17 @@
                 if(_label != ""){
                     //check if another cue has the same label
                     let found_same_label = 0;
-                    for(let cues_index = 0; cues_index < this.props.cuelist.cues.length; cues_index++){
-                        if(this.props.cuelist.cues[cues_index].label == _label){
+                    if(typeof this.props.project.cuelists[this.props.project.currentCuelistIndex].cues == "undefined"){
+                        this.props.project.cuelists[this.props.project.currentCuelistIndex].cues = [];
+                    }
+                    for(let cues_index = 0; cues_index < this.props.project.cuelists[this.props.project.currentCuelistIndex].cues.length; cues_index++){
+                        if(this.props.project.cuelists[this.props.project.currentCuelistIndex].cues[cues_index].label == _label){
                             found_same_label++;
                         }
                     }
                     if(found_same_label == 0){
                         let uuid = self.crypto.randomUUID();
-                        this.props.cuelist.cues.push({'label': _label, "id": uuid,"mappings": []});
+                        this.props.project.cuelists[this.props.project.currentCuelistIndex].cues.push({'label': _label, "id": uuid,"mappings": []});
                         riot.eventBus.trigger('data_changed'); 
                         document.getElementById('cue_label_new').value = "";
                         this.update();
@@ -269,9 +283,10 @@
                     if(found_same_name == 0){
                         let uuid = self.crypto.randomUUID();
                         let uuid2 = self.crypto.randomUUID();
-                        riot.eventBus.trigger('add_cuelist', {'name': _name, "id": uuid,"cues": [{'label': "First Cue", "id": uuid,"mappings": []}]});
+                        this.props.project.cuelists.push({'name': _name, "id": uuid,"cues": []});
                         document.getElementById('cuelist_name_new').value = "";
                         this.state.add_cuelist_message = "Cuelist '" + _name + "' added.";
+                        riot.eventBus.trigger('data_changed'); 
                         this.update();
                     } else {
                         this.state.add_cuelist_message = "Found another cuelist with the same name. Please choose another one.";
