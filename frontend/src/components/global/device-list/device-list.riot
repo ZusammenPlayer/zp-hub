@@ -42,7 +42,7 @@
       </div>
     </div>
   </div> 
-  <button type="button" onclick="{(e) => test_observable(e)}">click</button>
+  
   <script>
     import observable from '@riotjs/observable'
     var riot = require('riot');
@@ -82,12 +82,6 @@
 
 
       },
-      test_observable(e){
-        e.preventDefault();
-        console.log('to');
-        riot.eventBus.trigger('update_devices', this.state.devices);
-        riot.eventBus.trigger('data_changed'); 
-      }
     }
   </script>
 </device-list>

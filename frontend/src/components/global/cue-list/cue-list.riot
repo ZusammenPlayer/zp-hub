@@ -59,7 +59,7 @@
                         <button class="button-outline" onclick={(e) => change_single_mapping(e, document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value, document.getElementById('mapping_scene_' + cue_index + '_' + mapping_index).value, mapping_index, cue_index)}>  apply  </button>
                         <div if="{typeof this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] !== 'undefined' && this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] != ''}">{this.state.change_single_mapping_messages[cue_index + '_' + mapping_index]}</div>
                     </div>
-                </div>{props.project.scenes.length}
+                </div>
                 <div if="{props.project.scenes.length == 0 || props.project.virtual_devices.length == 0 || props.project.virtual_devices.length > props.project.cuelists[props.project.currentCuelistIndex].cues[cue_index].mappings.length}">
                     <div if="{props.project.scenes.length > 0 && props.project.virtual_devices.length > 0}">
                         <select class="mapping" name="mapping_vdid_{cue_index}_new" id="mapping_vdid_{cue_index}_new">
@@ -108,11 +108,13 @@
                 add_cuelist_message: '',
             },
             async onBeforeMount(props, state) {
-                for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
+                if(this.props.project.virtual_devices){
+                    for(let virtual_device_index = 0; virtual_device_index < this.props.project.virtual_devices.length; virtual_device_index++){
                     this.state.vdevID2Index[this.props.project.virtual_devices[virtual_device_index].id] = virtual_device_index;
-                }
-                for(let scene_index = 0; scene_index < this.props.project.scenes.length; scene_index++){
-                    this.state.sceneID2Index[this.props.project.scenes[scene_index].id] = scene_index; 
+                    }
+                    for(let scene_index = 0; scene_index < this.props.project.scenes.length; scene_index++){
+                        this.state.sceneID2Index[this.props.project.scenes[scene_index].id] = scene_index; 
+                    }
                 }
             },
             async onMount(props, state) {
