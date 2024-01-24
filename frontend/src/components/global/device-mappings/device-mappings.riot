@@ -51,6 +51,8 @@
 
     <script>
         import observable from '@riotjs/observable'
+        import { v4 as uuidv4 } from 'uuid';
+
         var riot = require('riot');
 
         export default {
@@ -94,7 +96,7 @@
             },
             add_virtual_device(e, virtual_device_name, real_device){
                 e.preventDefault();
-                let uuid = self.crypto.randomUUID();
+                let uuid = uuidv4();
 
                 if(virtual_device_name != ""){
                     let found_same_name = 0;

@@ -39,6 +39,8 @@
 
     <script>
         import observable from '@riotjs/observable'
+        import { v4 as uuidv4 } from 'uuid';
+        
         var riot = require('riot');
 
         export default {
@@ -52,7 +54,7 @@
             add_scene(e, new_scene_name){
                 e.preventDefault();
                 if(new_scene_name != ''){
-                    let uuid = self.crypto.randomUUID();
+                    let uuid = uuidv4();
                     let new_scene = {
                         instructions: "",
                         name: new_scene_name,

@@ -96,6 +96,8 @@
     
     <script>
         import observable from '@riotjs/observable'
+        import { v4 as uuidv4 } from 'uuid';
+
         var riot = require('riot');
 
         export default {
@@ -257,7 +259,7 @@
                         }
                     }
                     if(found_same_label == 0){
-                        let uuid = self.crypto.randomUUID();
+                        let uuid = uuidv4();
                         this.props.project.cuelists[this.props.project.currentCuelistIndex].cues.push({'label': _label, "id": uuid,"mappings": []});
                         riot.eventBus.trigger('data_changed'); 
                         document.getElementById('cue_label_new').value = "";
@@ -283,8 +285,8 @@
                         }
                     }
                     if(found_same_name == 0){
-                        let uuid = self.crypto.randomUUID();
-                        let uuid2 = self.crypto.randomUUID();
+                        let uuid = uuidv4();
+                        let uuid2 = uuidv4();
                         this.props.project.cuelists.push({'name': _name, "id": uuid,"cues": []});
                         document.getElementById('cuelist_name_new').value = "";
                         this.state.add_cuelist_message = "Cuelist '" + _name + "' added.";
