@@ -47,19 +47,20 @@ module.exports = {
     hot: true,
     open: true,
     historyApiFallback: true,
-    
-    proxy: {
-      '/api': {
-           target: 'http://localhost:3000',
-           router: () => 'http://localhost:8080',
-           logLevel: 'debug' /*optional*/
-      },
-      '/socket.io': {
+    proxy: [
+      {
+        context: ['/api'],
         target: 'http://localhost:3000',
         router: () => 'http://localhost:8080',
-        logLevel: 'debug' /*optional*/
+        logLevel: 'debug'
+      },
+      {
+        context: ['/socket.io'],
+        target: 'http://localhost:3000',
+        router: () => 'http://localhost:8080',
+        logLevel: 'debug'
       }
-    }
+    ]
   },
   module: {
     rules: [
