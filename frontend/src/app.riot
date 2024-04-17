@@ -21,7 +21,7 @@
   <sidebar></sidebar>
 
   <script>
-    import { Router, Route, route, toRegexp, match } from '@riotjs/route'
+    import { Router, Route, route, setBase, toRegexp, match } from '@riotjs/route'
     import lazy from '@riotjs/lazy'
     import Loader from './components/includes/loader/loader.riot'
     import NotFound from './pages/not-found.riot'
@@ -46,7 +46,9 @@
             localStorage.setItem(DEVICES_STORAGE_KEY, JSON.stringify(devicesData));
         }
     };
-
+    //Route
+    setBase('/')
+    
     window.stateContainer = {}
     const defaultActivePage = pages.find(p => match('/', toRegexp(p.path)))
     export default {
@@ -74,6 +76,7 @@
       },
 
       updateDevices(_devices){
+        console.log(_devices);
         devicesStorage.save(_devices);
       },
 
@@ -93,7 +96,6 @@
         }
         
         riot.eventBus.on('update_devices',function(devices) { 
-            console.log('app.riot-dev'); 
             updateDevices(devices);
         });
       },

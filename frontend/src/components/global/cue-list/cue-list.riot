@@ -14,25 +14,25 @@
         }
     </style>
 
-    <h1><b>{props.project.name}</b>: cue list</h1>
-    <div class="row cue-container">
-        <div class="column column-35">
+    <h1><b>{props.project.name}</b>: Cuelists</h1>
+    <div class="row row-wrap cue-container">
+        <div class="column column-90">
             <select if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length > 1}" class="select" name="sel_cuelist" id="sel_cuelist">
                 <option each={ (cuelist, cuelist_index) in props.project.cuelists } id="cuelist{cuelist_index}" value="{cuelist_index}" selected="{props.project.currentCuelistIndex == cuelist_index}">{props.project.cuelists[cuelist_index].name}</option>
             </select>
             <button if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length > 1}" class="button-outline" onclick={(e) => change_cuelist(e, document.getElementById('sel_cuelist').value)}>  change cuelist  </button>
-            <p if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length < 2}">{typeof props.project.cuelists[0] != 'undefined' && typeof props.project.cuelists[0].name != 'undefined' ? props.project.cuelists[0].name : 'You don\'t have a cue list yet. Please create one!'}</p>
-            <p if="{typeof props.project.cuelists == 'undefined'}">You don't have a cue list yet. Please create one!</p>
+            <p if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length < 2}"><strong>{typeof props.project.cuelists[0] != 'undefined' && typeof props.project.cuelists[0].name != 'undefined' ? "Current cuelist: " + props.project.cuelists[0].name : 'You don\'t have a cue list yet. Please create one!'}</strong></p>
+            <p if="{typeof props.project.cuelists == 'undefined'}"><strong>You don't have a cue list yet. Please create one!</strong></p>
         </div>
-        <div class="column column-65">
-            <input type="text" name="cuelist_name_new" id="cuelist_name_new" class="select" size="30" maxlength="50" value="">
+        <div class="column column-90">
+            <strong>+</strong> &nbsp; <input type="text" name="cuelist_name_new" id="cuelist_name_new" class="select" size="30" maxlength="50" value="">
             <button class="button-outline" onclick={(e) => add_cuelist(e, document.getElementById('cuelist_name_new').value)}>  create new cuelist  </button>
             <div if="{typeof this.state.add_cuelist_message !== 'undefined' && this.state.add_cuelist_message != ''}">{this.state.add_cuelist_message}</div>
         </div>
     </div>
     <div if="{typeof props.project.cuelists != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex] != 'undefined'}">
         <div>
-            <button onclick={triggerPause}>pause all</button>
+            <button onclick={(e) => triggerPause(e)}>pause all</button>
         </div>
         <div class="row cue-container">
             <div class="column column-30"><b>Cue Label</b></div>
@@ -56,7 +56,7 @@
                             <option value=""> do nothing </option>
                             <option each={scene in props.project.scenes} value="{scene.id}" selected="{scene.id == mapping.scene_id}"> {scene.name} </option>
                         </select>
-                        <button class="button-outline" onclick={(e) => change_single_mapping(e, document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value, document.getElementById('mapping_scene_' + cue_index + '_' + mapping_index).value, mapping_index, cue_index)}>  apply  </button>
+                        <button class="button-outline" onclick={(e) => change_single_mapping(e, document.getElementById('mapping_vdid_' + cue_index + '_' + mapping_index).value, document.getElementById('mapping_scene_' + cue_index + '_' + mapping_index).value, mapping_index, cue_index)}>apply changes</button>
                         <div if="{typeof this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] !== 'undefined' && this.state.change_single_mapping_messages[cue_index + '_' + mapping_index] != ''}">{this.state.change_single_mapping_messages[cue_index + '_' + mapping_index]}</div>
                     </div>
                 </div>
@@ -81,14 +81,19 @@
                 
             </div>
             <div class="column column-20">
-                <button data-id={cue.id} onclick={triggerCue}>Go</button>
+                <button data-id={cue.id} onclick={(e) => triggerCue(e)}>Go</button>
             </div>
         </div>
-        <div if="{typeof props.project.cuelists != 'undefined' && typeof props.project.cuelists[0] != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined'}" class="row cue-container">
-            <div class="column column-30">
-                Add Cue: <input type="text" name="cue_label_new" id="cue_label_new" size="30" maxlength="50" value="" style="max-width: 30%; margin-right: 1%;">
-                <button class="button-outline" onclick={(e) => add_cue(e, document.getElementById('cue_label_new').value)}>  add  </button>
+        <div if="{typeof props.project.cuelists != 'undefined' && typeof props.project.cuelists[0] != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex] != 'undefined'}" class="row cue-container">
+            <div if="{typeof props.project.scenes != 'undefined' && typeof props.project.virtual_devices != 'undefined' && props.project.scenes.length > 0 && props.project.virtual_devices.length > 0}" class="column column-30">
+                Add Cue: <input type="text" name="cue_label_new" id="cue_label_new" size="30" maxlength="50" value="" style="max-width: 30%;">
+                <button class="button-outline" onclick={(e) => add_cue(e, document.getElementById('cue_label_new').value)}>add</button>
                 <div if="{typeof this.state.change_label_messages['new'] !== 'undefined' && this.state.change_label_messages['new'] != ''}">{this.state.change_label_messages['new']}</div>
+            </div>
+            <div if="{props.project.scenes.length == 0 || props.project.virtual_devices.length == 0}">
+                <div><p><strong>Please do the following to create a cue: </strong></p></div>
+                <div if="{props.project.scenes.length == 0}"> Please create at least one scene first. (<a href="scenes">Scenes</a>)</div>
+                <div if="{props.project.virtual_devices.length == 0}">Please create at least one virtual device first. (<a href="mapping">Device Mapping</a>)</div>
             </div>
         </div>
     <div>
@@ -129,28 +134,42 @@
                     cuelistId: this.props.project.cuelists[this.props.project.currentCuelistIndex].id,
                     cueId: e.target.dataset.id
                 };
-                try {
-                    const res = await fetch(`/api/project/trigger`, {
-                        method: 'post',
-                        body: JSON.stringify(data)
-                    });
-                    const json = await res.json();
-                } catch (error) {
-                    console.log({ error });
-                }
+                fetch('/api/project/trigger', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json, text/plain, */*'},
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Triggered cue ' + e.target.dataset.id + ' successfully!');
+                    } else {
+                        console.log(response.statusText);
+                    }
+                })
+                .catch(error => {
+                    // Handle any network or other errors
+                    console.error('Error triggering:', error);
+                })
             },
             async triggerPause(e) {
                 e.preventDefault();
                 const data = { projectId: this.props.project.id };
-                try {
-                    const res = await fetch(`/api/project/pause`, {
-                        method: 'post',
-                        body: JSON.stringify(data)
-                    });
-                    const json = await res.json();
-                } catch (error) {
-                    console.log({ error });
-                }
+                fetch('/api/project/pause', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'Accept': 'application/json, text/plain, */*'},
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Triggered pause successfully!');
+                    } else {
+                        console.log(response.statusText);
+                    }
+                })
+                .catch(error => {
+                    // Handle any network or other errors
+                    console.error('Error triggering pause:', error);
+                })
             },
             //select cuelist
             change_cuelist(e, cuelist_index){

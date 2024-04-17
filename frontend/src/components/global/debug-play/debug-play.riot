@@ -21,7 +21,7 @@
                 <input onkeyup={ editEventName } value={ state.eventName } type="text" placeholder="event name" id="eventNameField">
                 <label for="payloadField">payload</label>
                 <textarea onkeyup={ editPayload } value={ state.payload } placeholder="payload" id="payloadField"></textarea>
-                <button width="100%" onclick={button_clicked}>play</button>
+                <button width="100%" onclick={(e) => button_clicked(e)}>play</button>
                 <div class="float-right">
                     <label if={ state.show_info } class="success">event sent</label>
                     <label if={ state.debug_error } class="error">{ state.debug_error }</label>

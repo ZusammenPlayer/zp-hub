@@ -68,6 +68,8 @@
                         console.log("project: " + this.state.currentProject.name);
                         projectStorage.save(data);
                         riot.eventBus.trigger('activeProject', data); 
+
+                        await this.getDevicesFromStorage(this.state.currentProject);
                     }
                 } else if (res.status === 400) {
                     const error = await res.json();
@@ -77,43 +79,37 @@
                     this.update({ load_error: 'Error loading projects! status code: ' + res.status});
                 }
             },
-            async getDevicesFromStorage() {
+            async getDevicesFromStorage(_currentProject) {
                 let localStorageDevices = await devicesStorage.fetch();
                 
                 if(localStorageDevices != null && localStorageDevices != []){
-                    this.state.currentProject.real_devices = localStorageDevices;
+                    _currentProject.real_devices = localStorageDevices;
                     this.update();
                 } 
                     
             },
             async getProject(_slug) {
-                let getFromHub = 0;
                 let localStorageData = await projectStorage.fetch();
                 
                 if(localStorageData != null && localStorageData != []){
                     if(localStorageData.slug == _slug){
                         if(typeof(localStorageData.currentCuelistIndex) == 'undefined'){
-                            localStorageData.currentCuelistIndex = 0;
+                            localStorageData.currentCuelistIndex = -1;
                         }
                         riot.eventBus.trigger('activeProject', localStorageData); 
                         this.update({ title: localStorageData.name, currentProject: localStorageData });
-                        this.getDevicesFromStorage();
-
+                        await this.getDevicesFromStorage(this.state.currentProject);
                        console.log("ls project: " + this.state.currentProject.name);
                     } else {
-                        getFromHub = 1;
+                        this.getProjectFromHub(_slug);
                     }
                 } else {
-                    getFromHub = 1;
-                }
-
-                if(getFromHub != 0){
                     this.getProjectFromHub(_slug);
                 }
                 
             },
             async saveProject() {
-                const res = await fetch('/api/project/' + this.state.currentProject.id);
+                //const res = await fetch('/api/project/' + this.state.currentProject.id);
                 let payload = {
                     scenes: this.state.currentProject.scenes,
                     virtual_devices: this.state.currentProject.virtual_devices,
@@ -173,6 +169,13 @@
                 const saveProject = () => {
                     this.saveProject();
                 }
+
+                const getDevicesFromStorage = () => {
+                    if(this.state.currentProject){
+                        this.getDevicesFromStorage(this.state.currentProject);
+                        this.update();
+                    }
+                }
                 
                 riot.eventBus.on('activePage', function(_activePage) {  
                     activePageUpdate(_activePage);
@@ -191,6 +194,10 @@
 
                 riot.eventBus.on('save_project',function() {     
                     saveProject();
+                });
+
+                riot.eventBus.on('update_devices',function() {     
+                    getDevicesFromStorage();
                 });
             }
             
