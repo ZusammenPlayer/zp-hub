@@ -99,5 +99,5 @@ async def pause_all(request):
 
     
     await sio_mngr.sio.emit("pause", "pause")
-    response_data = []
-    return web.json_response(response_data)
+    
+    return web.HTTPOk()
