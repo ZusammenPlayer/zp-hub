@@ -97,6 +97,7 @@ async def pause_all(request):
     #     error = {'code': 40, 'message': 'project not found'}
     #     return web.HTTPBadRequest(text=json.dumps(error))
 
-    # response_data = []
-    # return web.json_response(response_data)
+    
     await sio_mngr.sio.emit("pause", "pause")
+    response_data = []
+    return web.json_response(response_data)
