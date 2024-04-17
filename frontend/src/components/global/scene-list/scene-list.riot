@@ -1,25 +1,13 @@
 <scene-list>
 
-    <style>
-        .scene-container {
-            padding: 5px;
-            margin: 5px;
-            width: "100%";
-            background-color: #ddd;
-        }
-        .code {
-            font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-        }
-    </style>
-
     <h1><b>{props.project.name}</b>: Scenes </h1>
 
     <div>
-        <div class="row scene-container">
+        <div class="item-container">
             <div class="column column-25"><b>Scene Name</b></div>
             <div class="column column-75"><b>Command</b></div>
         </div>
-        <div class="row scene-container" each={(scene, index) in props.project.scenes}>
+        <div class="item-container" each={(scene, index) in props.project.scenes}>
             <div class="column column-25">
                 <input type="text" name="scene_name_{index}" id="scene_name_{index}" size="30" maxlength="50" value="{ scene.name}">
                 <button class="button-outline" onclick={(e) => edit_scene_name(e, index, document.getElementById('scene_name_'+index).value)}>  change name  </button>
@@ -29,7 +17,7 @@
                 <button class="button-outline" onclick={(e) => edit_scene_instruction(e, index, document.getElementById('instruction_'+index).value)}>  change instruction  </button> 
             </div>
         </div>
-        <div class="row scene-container" >
+        <div class="item-container" >
             <div class="column column-25"><input type="text" name="new_scene_name" id="new_scene_name" size="30" maxlength="50"></div>
             <div class="column column-75"><button class="button-outline" onclick={(e) => add_scene(e, document.getElementById('new_scene_name').value)}>  add  scene</button> 
                 <div if="{this.state.add_scene_message.text !== ''}">{this.state.add_scene_message.text}</div>

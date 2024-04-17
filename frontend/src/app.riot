@@ -8,7 +8,7 @@
               <not-found />
             </div>
           </div>
-          <div if={!state.showNotFound} class="row">
+          <div if={!state.showNotFound} class="row" id="content">
             <div class="column">
               <route each={page in state.pages} path={page.path}>
                 <main is={page.componentName} params={route.params} navActivePage={state.activePage}/>

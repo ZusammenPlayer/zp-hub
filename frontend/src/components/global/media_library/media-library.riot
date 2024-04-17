@@ -1,27 +1,14 @@
 <media-library>
 
-    <style>
-        .scene-container {
-            padding: 5px;
-            margin: 5px;
-            width: "100%";
-            background-color: #ddd;
-        }
-        .code {
-            font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-        }
-    </style>
-
     <h1><b>{props.project.name}</b>: Media Library</h1>
 
     <form onsubmit={uploadFile}>
-        <input type="file" name="file">
+        <input type="file" name="file" id="filename">
         <input type="submit">
         <input type="hidden" name="projectId" value={props.project.id}>
     </form>
-
     <div>
-        <div class="row scene-container" each={file in props.project.media }>
+        <div class="item-container" each={file in props.project.media.reverse() }>
             <div class="column column-25"><p>{ file.filename }</p></div>
             <div class="column column-75">
                 <pre>{ file.md5 }</pre>
@@ -30,8 +17,11 @@
     </div>
 
     <script>
+        import observable from '@riotjs/observable'
+        var riot = require('riot');
         export default {
             state: {},
+            props: {},
             async onBeforeMount(props, state) {},
             async uploadFile(e) {
                 e.preventDefault();
@@ -43,18 +33,59 @@
                 })
                 .then(response => {
                     if (response.ok) {
-                    // Handle the successful response
-                    console.log('Form data uploaded successfully!');
+                        // Handle the successful response
+                        console.log('Form data uploaded successfully!');
+                        document.getElementById('filename').value = "";
+                        this.getProjectMediaFromHub(this.props.project.slug);
+                        this.update();
                     } else {
-                    // Handle the error response
-                    console.error('Error uploading form data:', response.statusText);
+                        // Handle the error response
+                        console.error('Error uploading form data:', response.statusText);
                     }
                 })
                 .catch(error => {
                     // Handle any network or other errors
                     console.error('Error uploading form data:', error);
                 });
-            }
+            },
+            async getProjectMediaFromHub(_slug){
+                console.log(_slug);
+                const res = await fetch('/api/project?slug=' + _slug);
+                if (res.status === 200) {
+                    let data = {};
+                    try{
+                        data = await res.json();
+                    }
+                    catch(err){
+                        this.update({ load_error: 'Error loading projects! JSON Error: ' + err});
+                    }
+                    if(data != {}){
+                        if(typeof(data.currentCuelistIndex) == 'undefined'){
+                            data.currentCuelistIndex = 0;
+                        }
+                        if(typeof(data.real_devices) == 'undefined'){
+                            data.real_devices = []; 
+                        }
+                        
+                        console.log("project: " + data.media);
+                        if(typeof data.media != 'undefined' && data.media.length >0){
+                            this.props.project.media = data.media;
+                        }
+                        riot.eventBus.trigger('data_changed');
+                        this.update();
+                        //projectStorage.save(data);
+                        //riot.eventBus.trigger('activeProject', data); 
+
+                        //await this.getDevicesFromStorage(this.state.currentProject);
+                    }
+                } else if (res.status === 400) {
+                    const error = await res.json();
+                    this.update({ title: [], load_error: error.message });
+                } else {
+                    console.log("else")
+                    this.update({ load_error: 'Error loading projects! status code: ' + res.status});
+                }
+            },
         }
     </script>
 

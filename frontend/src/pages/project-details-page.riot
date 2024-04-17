@@ -1,5 +1,6 @@
 <project-details>
     <p if={ state.load_error } class="error">{ this.state.load_error }</p>
+    <div if={state.unsavedChanges} class="column" id="unsavedChanges">You have unsaved changes.</div>
     <div if={this.state.currentProject !== null}>   
         <h1 if={props.navActivePage.currentProjectAction !== 'cuelists' && props.navActivePage.currentProjectAction !== 'scenes' && props.navActivePage.currentProjectAction !== 'mapping' && props.navActivePage.currentProjectAction !== 'media'}><b>{this.state.title}</b>: Project Details</h1>     
         <div is="cue-list" data-riot-component if={props.navActivePage.currentProjectAction === 'cuelists'} project={this.state.currentProject}></div>
@@ -44,7 +45,8 @@
                 title: 'Project',
                 activePage: null,
                 load_error: null,
-                currentProject: null
+                currentProject: null,
+                unsavedChanges: false,
             },
             async getProjectFromHub(_slug){
                 const res = await fetch('/api/project?slug=' + _slug);

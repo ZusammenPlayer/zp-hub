@@ -21,13 +21,11 @@
             activePage: null
         },
         onBeforeMount(){
-            //this.newPage(window.stateContainer.activePage)
             const activePageUpdate = (input) => {
                 const activePage = input
                 this.update({
                     activePage
                 })
-                console.log('activePage N: ' + this.state.activePage.componentName)
             }
             riot.eventBus.on('activePage', function(input) {      
                 activePageUpdate(input)

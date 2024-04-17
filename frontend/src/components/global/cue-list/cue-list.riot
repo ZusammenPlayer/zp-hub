@@ -1,11 +1,6 @@
 <cue-list>
     <style>
-        .cue-container {
-            padding: 5px;
-            margin: 5px;
-            width: "100%";
-            background-color: #ddd;
-        }
+        
         .select {
             max-width: 50%;
         }
@@ -15,8 +10,8 @@
     </style>
 
     <h1><b>{props.project.name}</b>: Cuelists</h1>
-    <div class="row row-wrap cue-container">
-        <div class="column column-90">
+    <div class="row-wrap item-container">
+        <div class="column column-40">
             <select if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length > 1}" class="select" name="sel_cuelist" id="sel_cuelist">
                 <option each={ (cuelist, cuelist_index) in props.project.cuelists } id="cuelist{cuelist_index}" value="{cuelist_index}" selected="{props.project.currentCuelistIndex == cuelist_index}">{props.project.cuelists[cuelist_index].name}</option>
             </select>
@@ -24,8 +19,8 @@
             <p if="{typeof props.project.cuelists != 'undefined' && props.project.cuelists.length < 2}"><strong>{typeof props.project.cuelists[0] != 'undefined' && typeof props.project.cuelists[0].name != 'undefined' ? "Current cuelist: " + props.project.cuelists[0].name : 'You don\'t have a cue list yet. Please create one!'}</strong></p>
             <p if="{typeof props.project.cuelists == 'undefined'}"><strong>You don't have a cue list yet. Please create one!</strong></p>
         </div>
-        <div class="column column-90">
-            <strong>+</strong> &nbsp; <input type="text" name="cuelist_name_new" id="cuelist_name_new" class="select" size="30" maxlength="50" value="">
+        <div class="column column-60">
+            <strong>+</strong> &nbsp; <input type="text" name="cuelist_name_new" id="cuelist_name_new" class="select" size="20" maxlength="50" value="">
             <button class="button-outline" onclick={(e) => add_cuelist(e, document.getElementById('cuelist_name_new').value)}>  create new cuelist  </button>
             <div if="{typeof this.state.add_cuelist_message !== 'undefined' && this.state.add_cuelist_message != ''}">{this.state.add_cuelist_message}</div>
         </div>
@@ -34,12 +29,13 @@
         <div>
             <button onclick={(e) => triggerPause(e)}>pause all</button>
         </div>
-        <div class="row cue-container">
+        <div class="item-container">
             <div class="column column-30"><b>Cue Label</b></div>
             <div class="column column-50"><b>Mapping (Virtual Device -> Scene)</b></div>
             <div class="column column-20"><b>Action</b></div>
         </div>
-        <div if="{typeof props.project.cuelists != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex] != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex].cues != 'undefined'}" class="row cue-container" each={ (cue, cue_index) in props.project.cuelists[props.project.currentCuelistIndex].cues }>
+        <div class="item-container" each={ (cue, cue_index) in props.project.cuelists[props.project.currentCuelistIndex].cues } 
+            if="{typeof props.project.cuelists != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex] != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex].cues != 'undefined'}">
             <div class="column column-30">
                 <input type="text" name="cue_label_{cue_index}" id="cue_label_{cue_index}" size="30" maxlength="50" value="{ cue.label}">
                 <button class="button-outline" onclick={(e) => change_cue_label(e, cue_index, document.getElementById('cue_label_'+cue_index).value)}>  change name  </button>
@@ -84,8 +80,8 @@
                 <button data-id={cue.id} onclick={(e) => triggerCue(e)}>Go</button>
             </div>
         </div>
-        <div if="{typeof props.project.cuelists != 'undefined' && typeof props.project.cuelists[0] != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex] != 'undefined'}" class="row cue-container">
-            <div if="{typeof props.project.scenes != 'undefined' && typeof props.project.virtual_devices != 'undefined' && props.project.scenes.length > 0 && props.project.virtual_devices.length > 0}" class="column column-30">
+        <div class="item-container" if="{typeof props.project.cuelists != 'undefined' && typeof props.project.cuelists[0] != 'undefined' && typeof props.project.currentCuelistIndex != 'undefined' && typeof props.project.cuelists[props.project.currentCuelistIndex] != 'undefined'}">
+            <div class="column column-30" if="{typeof props.project.scenes != 'undefined' && typeof props.project.virtual_devices != 'undefined' && props.project.scenes.length > 0 && props.project.virtual_devices.length > 0}">
                 Add Cue: <input type="text" name="cue_label_new" id="cue_label_new" size="30" maxlength="50" value="" style="max-width: 30%;">
                 <button class="button-outline" onclick={(e) => add_cue(e, document.getElementById('cue_label_new').value)}>add</button>
                 <div if="{typeof this.state.change_label_messages['new'] !== 'undefined' && this.state.change_label_messages['new'] != ''}">{this.state.change_label_messages['new']}</div>
@@ -176,6 +172,7 @@
                 e.preventDefault();
                 this.props.project.currentCuelistIndex = cuelist_index;
                 riot.eventBus.trigger('data_changed'); 
+                this.state.unsavedChanges = true;
                 this.update();
             },
             //mappings

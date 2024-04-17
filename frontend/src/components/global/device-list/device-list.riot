@@ -17,9 +17,10 @@
     .device-wrapper {
       margin-bottom: 0.5em;
     }
-    .device-row {
+    #device-row {
       height: 80vh;
       overflow-y: scroll;
+      transition: all .2s ease-out;
     }
     .zp-device-info {
       padding: 0 1em;
@@ -28,10 +29,9 @@
       background-color: lightgreen; color: black
     }
   </style>
+  <h4 onclick={(e) => toggleVis(e)}><b>Known Devices</b></h4>
 
-  <h4><b>Known Devices</b></h4>
-
-  <div class="device-row"> 
+  <div id="device-row"> 
     <div each={ device in state.devices } class="device-wrapper">
       <div  class="zp-device {device.online  !== false ? 'active' : ''}">      
         <div class="zp-device-header"><b>{ device.uid }</b></div>
@@ -49,7 +49,22 @@
     const io = require('socket.io-client');
     export default {
       state: {
-        devices: []
+        devices: [],
+        vis: true
+      },
+      toggleVis(){
+        if(this.state.vis == true){
+          this.state.vis = false;
+          document.getElementById('sidebar').style.height = '4rem';
+          document.getElementById('device-row').style.height = '0';
+          document.getElementById('content').style.width = '99vw';
+        } else {
+          this.state.vis = true;
+          document.getElementById('sidebar').style.height = '100vh';
+          document.getElementById('device-row').style.height = '84vh';
+          document.getElementById('content').style.width = '84vw';
+        }
+        console.log(this.state.vis);
       },
       async onBeforeMount(props, state) {
         console.log('init socket io');

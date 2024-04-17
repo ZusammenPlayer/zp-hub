@@ -1,11 +1,6 @@
 <device-mappings>
     <style>
-        .zp-container {
-            padding: 5px;
-            margin: 5px;
-            width: "100%";
-            background-color: #ddd;
-        }
+        
         .addDevice {
             max-width: 50%;
         }
@@ -14,13 +9,13 @@
     <h1><b>{props.project.name}</b>: Device Mapping</h1>
 
     <div>
-        <div class="row zp-container">
+        <div class="item-container">
             <div class="column column-50"><b>Virtual Device Name</b></div>
             <div class="column column-50">
                 <b>Associated Real Devices</b>
             </div>
         </div>
-        <div class="row zp-container" each={(virtual_device, index) in props.project.virtual_devices}>
+        <div class="item-container" each={(virtual_device, index) in props.project.virtual_devices}>
             <div class="column column-50">  
                 <input type="text" name="virtual_device_name_{index}" id="virtual_device_name_{index}" size="30" maxlength="50" value="{virtual_device.name}">
                 <button class="button-outline" onclick={(e) => edit_virtual_device_name(e, index, document.getElementById('virtual_device_name_'+index).value)}>  edit  </button>
@@ -36,7 +31,7 @@
                 
             </div>
         </div>
-        <div class="row zp-container">
+        <div class="item-container">
             <div class="column column-70">  <input type="text" name="new_virtual_device_name" id="new_virtual_device_name" size="30" maxlength="50"></div>
             <select class="mapping" name="mapping_device_new" id="mapping_device_new">
                 <option value=""> ... </option>
