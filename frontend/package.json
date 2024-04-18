@@ -14,9 +14,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@riotjs/compiler": "^9.0.7",
-    "@riotjs/register": "^9.0.0",
-    "@riotjs/webpack-loader": "^9.0.1",
+    "@riotjs/compiler": "^6.3.2",
+    "@riotjs/register": "^6.0.1",
+    "@riotjs/webpack-loader": "^6.0.0",
     "chai": "^5.1.0",
     "css-loader": "^6.10.0",
     "esm": "^3.2.25",
@@ -31,11 +31,11 @@
     "webpack-dev-server": "^5.0.3"
   },
   "dependencies": {
-    "@riotjs/hot-reload": "^9.0.1",
-    "@riotjs/lazy": "^9.0.0",
+    "@riotjs/hot-reload": "^6.0.1",
+    "@riotjs/lazy": "^2.0.2",
     "@riotjs/observable": "^4.1.1",
-    "@riotjs/route": "^9.2.0",
-    "riot": "^9.1.4",
+    "@riotjs/route": "^8.0.2",
+    "riot": "^7.0.3",
     "socket.io-client": "^4.7.5",
     "uuid": "^9.0.1"
   }
