@@ -70,13 +70,15 @@ module.exports = {
         use: [{
           loader: '@riotjs/webpack-loader',
           options: {
-            hot: true
+            hot: true,
+            sourceMap: true,
+            defaultExport: true,
           }
-        }]
+        }],
       },
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
@@ -86,10 +88,24 @@ module.exports = {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
       },
-    ]
+      {
+        assert: { type: "css" },
+        loader: "css-loader",
+        options: {
+          exportType: "css-style-sheet",
+        },
+      },
+    ],
   },
+  
   plugins: [
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      linkType: "text/css",
+      filename: "[name].css",
+      chunkFilename: "[id].css",
+      insert: "#some-element",
+      ignoreOrder: true,
+    }),
     new HtmlWebpackPlugin({
       template: 'src/index.html',
       favicon: 'src/favicon.ico'
