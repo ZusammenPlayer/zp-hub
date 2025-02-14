@@ -13,10 +13,10 @@ def get_devices(connected_devices, project, virtual_device_id):
     for vd in project['virtual_devices']:
         if vd['id'] == virtual_device_id:
             virtual_device = vd
-    
+
     if virtual_device is None:
         return devices
-    
+
     for d in virtual_device['device_ids']:
         for cd in connected_devices:
             if cd['uid'] == d:
@@ -36,7 +36,7 @@ def files_for_device(project, device_id):
                         if "instructions" in scene:
                             instructions = scene["instructions"].split(" ")
                             cmd = instructions[0]
-                            if cmd == "play" or cmd == "show":
+                            if cmd == "play" or cmd == "show" or cmd == "playVid" or cmd == "preloadFile":
                                 file_names.append(instructions[1])
     files = []
     for m in project["media"]:
@@ -55,7 +55,7 @@ def devices_for_project(project):
                 scene = next((s for s in project["scenes"] if s["id"] == mapping["scene_id"]), None)
                 if virtual_device is not None and scene is not None:
                     device_ids.append(virtual_device["device_ids"])
-    
+
     # flatten list of list of device ids
     device_ids = [item for row in device_ids for item in row]
 
