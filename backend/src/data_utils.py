@@ -36,7 +36,7 @@ def files_for_device(project, device_id):
                         if "instructions" in scene:
                             instructions = scene["instructions"].split(" ")
                             cmd = instructions[0]
-                            if cmd == "play" or cmd == "show" or cmd == "playVid" or cmd == "preloadFile":
+                            if cmd == "play" or cmd == "show" or cmd == "playVid" or cmd == "playVidLoop" or cmd == "preloadFile":
                                 file_names.append(instructions[1])
     files = []
     for m in project["media"]:
